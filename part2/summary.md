@@ -127,7 +127,7 @@
   - [ ] G
   - [ ] J
   - [ ] K
-  - [ ] L
+  - [x] L
 - P: https://codeforces.com/gym/100299/
   - [ ] A
   - [ ] D
@@ -138,8 +138,8 @@
 - Q: https://codeforces.com/gym/101612/
   - [ ] C
   - [ ] D
-  - [ ] E
-  - [ ] F
+  - [x] E
+  - [x] F
   - [ ] G
   - [ ] H
   - [ ] J
