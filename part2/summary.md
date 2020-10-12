@@ -1,0 +1,171 @@
+- A: https://codeforces.com/gym/101221/
+  - [ ] A
+  - [ ] B
+  - [ ] C
+  - [ ] E
+  - [ ] F
+  - [ ] G
+  - [ ] H
+  - [ ] I
+  - [ ] J
+  - [ ] K
+  - [ ] L
+- B: https://codeforces.com/gym/101239/
+  - [ ] B
+  - [ ] E
+  - [ ] G
+  - [ ] H
+  - [ ] J
+  - [ ] K
+  - [ ] L
+  - [ ] M
+- C: https://codeforces.com/gym/101242/
+  - [ ] A
+  - [ ] B
+  - [ ] D
+  - [ ] F
+  - [ ] H
+  - [ ] I
+  - [ ] J
+  - [ ] K
+  - [ ] M
+- D: https://codeforces.com/gym/101471/
+  - [ ] A
+  - [ ] B
+  - [ ] D
+  - [ ] G
+  - [ ] H
+  - [ ] J
+  - [ ] K
+  - [ ] L
+- E: https://codeforces.com/gym/102482/
+  - [ ] C
+  - [ ] D
+  - [ ] E
+  - [ ] G
+  - [ ] H
+  - [ ] I
+  - [ ] J
+- F: https://codeforces.com/gym/102511/
+  - [ ] B
+  - [ ] C
+  - [ ] F
+  - [ ] G
+  - [ ] I
+  - [ ] J
+  - [ ] K
+- G: https://codeforces.com/gym/101630/
+  - [ ] F
+  - [ ] G
+  - [ ] H
+  - [ ] I
+  - [ ] J
+  - [ ] K
+  - [ ] L
+- H: https://codeforces.com/gym/101190/
+  - [ ] B
+  - [ ] C
+  - [ ] D
+  - [ ] G
+  - [ ] I
+  - [ ] K
+  - [ ] L
+  - [ ] M
+- I: https://codeforces.com/gym/100851/
+  - [ ] B
+  - [ ] C
+  - [ ] D
+  - [ ] H
+  - [ ] I
+  - [ ] J
+  - [ ] K
+  - [ ] L
+- J: https://codeforces.com/gym/100553/
+  - [ ] C
+  - [ ] D
+  - [ ] E
+  - [ ] G
+  - [ ] H
+  - [ ] I
+- K: https://codeforces.com/gym/100307/
+  - [ ] A
+  - [ ] C
+  - [ ] D
+  - [ ] E
+  - [ ] G
+  - [ ] H
+  - [ ] I
+  - [ ] K
+- L: https://codeforces.com/gym/101620/
+  - [ ] B
+  - [ ] C
+  - [ ] D
+  - [ ] E
+  - [ ] I
+  - [ ] K
+  - [ ] L
+- M: https://codeforces.com/gym/101173/
+  - [ ] B
+  - [ ] D
+  - [ ] E
+  - [ ] G
+  - [ ] I
+  - [ ] J
+  - [ ] L
+- N: https://codeforces.com/gym/101480/
+  - [ ] C
+  - [ ] E
+  - [ ] F
+  - [ ] G
+  - [ ] I
+  - [ ] J
+  - [ ] L
+- O: https://codeforces.com/gym/100543/
+  - [ ] A
+  - [ ] B
+  - [ ] E
+  - [ ] G
+  - [ ] J
+  - [ ] K
+  - [ ] L
+- P: https://codeforces.com/gym/100299/
+  - [ ] A
+  - [ ] D
+  - [ ] E
+  - [ ] G
+  - [ ] H
+  - [ ] J
+- Q: https://codeforces.com/gym/101612/
+  - [ ] C
+  - [ ] D
+  - [ ] E
+  - [ ] F
+  - [ ] G
+  - [ ] H
+  - [ ] J
+- R: https://codeforces.com/gym/101142/
+  - [ ] B
+  - [ ] D
+  - [ ] E
+  - [ ] G
+  - [ ] H
+  - [ ] I
+  - [ ] J
+- S: https://codeforces.com/gym/100801/
+  - [ ] D
+  - [ ] F
+  - [ ] G
+  - [ ] I
+  - [ ] K
+- T: https://codeforces.com/gym/100531/
+  - [ ] C
+  - [ ] E
+  - [ ] F
+  - [ ] H
+  - [ ] K
+- U: https://codeforces.com/gym/100269/
+  - [ ] C
+  - [ ] H
+  - [ ] I
+  - [ ] J
+  - [ ] L
