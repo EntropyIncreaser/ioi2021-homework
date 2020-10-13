@@ -12,7 +12,7 @@
   - [ ] L
 - B: https://codeforces.com/gym/101239/
   - [ ] B
-  - [ ] E
+  - [x] E
   - [ ] G
   - [ ] H
   - [ ] J
@@ -164,8 +164,8 @@
   - [ ] H
   - [ ] K
 - U: https://codeforces.com/gym/100269/
-  - [ ] C
-  - [ ] H
+  - [x] C
+  - [x] H
   - [ ] I
-  - [ ] J
-  - [ ] L
+  - [x] J
+  - [x] L
