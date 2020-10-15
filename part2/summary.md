@@ -72,14 +72,14 @@
   - [ ] L
   - [ ] M
 - I: https://codeforces.com/gym/100851/
-  - [ ] B
+  - [x] B
   - [ ] C
-  - [ ] D
+  - [x] D
   - [ ] H
   - [ ] I
-  - [ ] J
+  - [x] J
   - [ ] K
-  - [ ] L
+  - [x] L
 - J: https://codeforces.com/gym/100553/
   - [ ] C
   - [ ] D
@@ -105,7 +105,7 @@
   - [ ] K
   - [ ] L
 - M: https://codeforces.com/gym/101173/
-  - [ ] B
+  - [x] B
   - [ ] D
   - [ ] E
   - [ ] G
