@@ -78,7 +78,7 @@
   - [ ] H
   - [ ] I
   - [x] J
-  - [ ] K
+  - [x] K
   - [x] L
 - J: https://codeforces.com/gym/100553/
   - [ ] C
@@ -99,11 +99,11 @@
 - L: https://codeforces.com/gym/101620/
   - [ ] B
   - [ ] C
-  - [ ] D
+  - [x] D
   - [ ] E
   - [ ] I
-  - [ ] K
-  - [ ] L
+  - [x] K
+  - [x] L
 - M: https://codeforces.com/gym/101173/
   - [x] B
   - [ ] D
@@ -129,7 +129,7 @@
   - [ ] K
   - [x] L
 - P: https://codeforces.com/gym/100299/
-  - [ ] A
+  - [x] A
   - [ ] D
   - [ ] E
   - [ ] G
