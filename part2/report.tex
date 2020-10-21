@@ -1,0 +1,227 @@
+
+% XeLaTeX can use any Mac OS X font. See the setromanfont command below.
+% Input to XeLaTeX is full Unicode, so Unicode characters can be typed directly into the source.
+
+% The next lines tell TeXShop to typeset with xelatex, and to open and save the source with Unicode encoding.
+
+%!TEX TS-program = xelatex
+%!TEX encoding = UTF-8 Unicode
+
+\documentclass[12pt]{ctexart}
+\usepackage{geometry}                % See geometry.pdf to learn the layout options. There are lots.
+\geometry{a4paper}                   % ... or a4paper or a5paper or ... 
+%\geometry{landscape}                % Activate for for rotated page geometry
+%\usepackage[parfill]{parskip}    % Activate to begin paragraphs with an empty line rather than an indent
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{tabularx}
+\usepackage{amsmath}
+\usepackage{mathrsfs}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{hyperref}
+\usepackage{amsthm}
+\usepackage{chemfig}
+\usepackage{mhchem}
+
+% Will Robertson's fontspec.sty can be used to simplify font choices.
+% To experiment, open /Applications/Font Book to examine the fonts provided on Mac OS X,
+% and change "Hoefler Text" to any of these choices.
+
+\usepackage{fontspec,xltxtra,xunicode}
+
+\providecommand*{\unit}[1]{\ensuremath{\mathrm{\,#1}}}
+\newcommand{\di}{\ensuremath{\mathrm{\,d}}}
+
+% \setmonofont{Source Code Pro}
+
+\setCJKmainfont{Noto Serif CJK SC}
+
+\CTEXsetup[format={\large\bfseries}]{section}
+
+\newtheorem{Def}{\hspace{2em}定义}
+\newtheorem{Thm}{\hspace{2em}定理}
+\newtheorem{Lem}{\hspace{2em}引理}
+
+\title{《带加强和多项木》命题报告\\
+\large IOI2021 国家集训队第一阶段作业第二部分}
+\author{北京大学附属中学\quad 李白天}
+% \date{}
+
+\begin{document}
+
+\maketitle
+
+本文介绍作者的一道改编题，虽说为改编题，但是与广为人知的，原本作为一个知识点入门的原题相比，本题的数据范围却与之大相径庭。命制本题的目的在于，试图揭示拉格朗日反演的一个非标准的变式，以及引发关于小模数问题下的一些思考。
+
+\section{试题大意及数据范围}
+
+\subsection{题目描述}
+
+带加强同学人如其名，喜欢加强各种计数题，尤其喜欢多项木。所谓多项木，就是“多项”+“木”，而“木”也有“树”之含义，也就是用多项式来数树。
+
+带加强认为一颗有根树的稳定程度取决于这棵树的每个节点有几个孩子，于是他规定了一个正整数集合 $D$，称一颗有根树是“铁”的，当且仅当对于这棵树的每一个非叶节点，设其有 $x$ 个孩子，那么 $x\in D$。
+
+带加强每次询问你一个 $n$，请你回答他有多少颗 $n$ 个\textbf{叶子}的有根树是“铁”的，答案对 $M$ 取模。
+
+\subsection{输入格式}
+
+第一行输入三个正整数 $T, K, M$，表示询问次数、集合中数的范围和模数。
+
+接下来一行一个长为 $K-1$ 的 \texttt{01} 串，串中（从 $2$ 开始计数）第 $x$ 个数是 \texttt{1} 表示 $x\in D$，否则 $x\notin D$。
+
+接下来每行一个正整数 $n$，表示询问的节点数量。
+
+\subsection{输出格式}
+
+输出 $T$ 行，按照询问顺序输出对应的答案。
+
+\section{与原题的对比}
+
+\subsection{数据范围}
+
+这道题的原题是 BZOJ 3684 大朋友和多叉树。原题的数据范围相当于 $T = 1, n, K \le 10^5$ 的情况，且保证了 $M=950009857 = 453\times2^{21}+1$，是一个质数。
+
+\subsection{做法}
+
+原题作为一道通常被当做“拉格朗日反演”知识点的入门题目，其思路是比较浅显的。我们设 $F(x) = \sum_{n\ge 1} f_n x^n$ 是数列 $f_n$ 的生成函数，其中 $f_n$ 表示 $n$ 个叶子的树的数量。我们考虑 $F(x)$ 的构成，一颗有根树要么是个叶子，要么有 $k$ 个子树，其中 $k\in D$。一个叶子的生成函数即为 $x$，而 $k$ 个子树都任意选取，考察其叶子总量时的生成函数即为 $F(x)^k$。因此我们导出了生成函数满足的一个方程
+
+$$
+F(x)=x+\sum_{k\in D} F(x)^k
+$$
+
+我们将其整理为标准形式
+
+$$
+F(x) - \sum_{k\in D} F(x)^k=x
+$$
+
+如果我们记 $G(x) = x - \sum_{k\in D}x^k$，那么既得形式幂的复合方程 $G(F(x))=x$。
+
+根据拉格朗日反演公式，互为复合逆的形式幂级数满足恒等式
+
+$$
+[x^n] F(x) = \frac 1n[x^{n-1}] \left(\frac{x}{G(x)}\right)^n
+$$
+
+而形式幂的初等运算，前 $n$ 项系数的计算在模数为“NTT 模数”的情况下存在较为高效的 $\Theta(n\log n)$ 算法，原题中的模数 $950009857 = 453\times2^{21}+1$，在 $M-1$ 的质因子分解中具有很高的 $2$ 的幂次且为质数，正是“NTT 模数”。故问题得到解决。
+
+\subsection{分析异同}
+
+与改编题的数据范围相比，原题的模数是非常大的质数，同时 $K$ 也可做到较大的范围。但是 $n$ 的范围却显著的收到了限制。
+
+同时，原本做法的理论层面还受到了一个严重的约束：在传统的拉格朗日反演公式中，我们需要在计算的最后乘以 $\frac 1n$。这在 $M$ 与 $n$ 有公共质因子的时候会导致处理方法变得复杂。
+
+\section{问题分析}
+
+\subsection{拉格朗日反演的修改}
+
+正如前面分析所说的，拉格朗日反演公式本身存在除法，是难以接受的。更一般的，我们还知道对于 $n,k\in \mathbb Z$，如下形式的拉格朗日反演公式都是成立的：
+
+$$
+n[x^n]F(x)^k = k[x^{-k}]G(x)^{-n}
+$$
+
+接下来，我们将通过给出一个拉格朗日反演公式的证明，通过将其中间的步骤进行修改来得到一个不完全一样的拉格朗日反演公式，该公式中我们能够成功规避除法。
+
+\subsubsection{原形式的证明}
+
+我们首先证明一个引理。
+
+\begin{Lem}[形式留数]
+对于幂级数 $F(x)$ 满足 $F(0)=0, F'(0)\neq0$，对于 $\forall k\in \mathbb Z$，有
+
+$$
+[x^{-1}]F'(x)F^k(x)=[k=-1]
+$$
+
+\end{Lem}
+
+\textbf{证明}：考虑当 $k\neq -1$ 时，我们有 $F'(x)F^k(x)=(\frac 1{k+1} F(x)^{k+1})'$，而 $(x^0)'=0x^{-1}$，故 $-1$ 次项系数此时必然为 $0$。当 $k=-1$ 时设 $F(x) = a_1 x + a_2 x^2 + \cdots$，有
+
+\begin{align*}
+\frac{F'(x)}{F(x)} &= \frac{a_1 + 2a_2x + \cdots}{a_1 x + a_2 x^2 + \cdots}\\
+&= x^{-1} \frac{1 + 2\frac{a_2}{a_1} x + \cdots}{1 + \frac{a_2}{a_1} x + \cdots}
+\end{align*}
+
+因此 $k=-1$ 时 $-1$ 次项系数为 $1$。
+
+接下来我们考虑带入复合关系 $F(G(x))=x$，有
+
+\begin{align*}
+F(G(x))^k &= x^k\\
+(F^k)'(G)G' &= kx^{k-1}\\
+\sum_{i} i([x^i] F^k(x)) G^{i-1}G' &= kx^{k-1}\\
+\sum_{i} i([x^i] F^k(x)) G^{i-1-n}G' &= kx^{k-1}G^{-n}\\ 
+[x^{-1}]\sum_{i} i([x^i] F^k(x)) G^{i-1-n}G' &= [x^{-1}]kx^{k-1}G^{-n}\\ 
+n[x^n] F^k &= [x^{-1}]kx^{k-1}G^{-n}\\ 
+n[x^n] F^k &= k[x^{-k}]G^{-n}
+\end{align*}
+
+\subsubsection{拉格朗日反演的另类形式}
+
+我们在推导过程中，考虑第一步就不是求导，而是乘以 $G'G^{-n-1}$：
+
+\begin{align*}
+F(G(x))^k &= x^k\\
+\sum_i ([x^i]F^k(x))G^i &= x^k\\
+\sum_i ([x^i]F^k(x))G'G^{i-n-1} &= x^k G'G^{-n-1}\\
+[x^{-1}]\sum_i ([x^i]F^k(x))G'G^{i-n-1} &= [x^{-1}]x^k G'G^{-n-1}\\
+[x^n]F^k &= [x^{-1}]x^k G'G^{-n-1}\\
+&= [x^{-k-1}]G'G^{-n-1}
+\end{align*}
+
+这个形式虽然不再具有足够的对称性，却成功规避了除法。顺便一提，它也指出了对于 $n=0,k<0$ 这种原本的拉格朗日反演公式无法处理的非平凡情况可以如何转化。
+
+对于我们题目中所求的形式，就是 $k=1$ 的情况，我们不妨写成
+
+$$
+[x^n]F(x) = [x^{n-1}]G'(x)\left(\frac {x}{G(x)}\right)^{n+1}
+$$
+
+\subsection{$M$ 为质数}
+
+容易发现只要解决了 $M$ 为质数的情况，就事实上解决了所有 $\mu(M) \neq0 $ 的情况。因为根据中国剩余定理，我们设 $M$ 的质因子分解为 $M=p_1^{\alpha_1} \cdots$，那么只要知道了一个数 $\bmod p_1^{\alpha_1}, \bmod p_2^{\alpha_2},\dots$ 的情况，就可以计算出该数 $\bmod M$ 下的值。
+
+我们首先来化简一下式子，注意到 $G(x)= x-\sum_{k\in D}x^k$，那么有
+
+\begin{align*}
+[x^n]F(x) &=[x^{n-1}] G'(x)\left(\frac {x}{G(x)}\right)^{n+1}\\
+&= [x^{n-1}] \frac{-\sum_{k\in D} kx^{k-1}}{(1-\sum_{k\in D} x^{k-1})^{n+1}}
+\end{align*}
+
+我们记 $P(x)=-\sum_{k\in D} kx^{k-1}, Q(x)=1-\sum_{k\in D} x^{k-1}$，那么现在我们的目的就是求 $[x^{n-1}] P/Q^{n+1}$。
+
+当 $M$ 为质数的时候，我们需要考虑一个极为重要的定理，它刻画了同余 $p$ 时多项式高阶幂的性质。
+
+\subsubsection{Lucas 定理}
+
+\subsection{$M$ 为 $p^k$}
+
+事实上根据上一节提到的，我们只要确认了 $M=p^k$ 的一般情况，就得到了对于所有小模数 $M$ 的算法。
+
+\subsubsection{同余 $p^k$ 时的多项式高阶幂性质}
+
+Lucas 定理已经指出了 $f(x)^p\equiv f(x^p) \pmod p$ 这个重要性质，那么对于 $\bmod p^k$ 呢？事实上我们会发现对于 $k\ge 1$，我们总是有
+
+$$
+f(x)^{p^k} \equiv f(x^p)^{p^{k-1}} \pmod {p^k}
+$$
+
+我们不妨归纳证明。
+
+当 $k=1$ 的时候，由 Lucas 定理可知情况成立，接下来我们设 $f(x)^{p^k} = f(x^p)^{p^{k-1}} + p^k \vartheta(x)$，由归纳假设可知 $\vartheta(x)$ 的系数均为整数。因此我们就有：
+
+\begin{align*}
+f(x)^{p^{k+1}} &= \left(f(x^p)^{p^{k-1}} + p^k \vartheta(x)\right)^p\\
+ &= f(x^p)^{p^k} + p \cdot p^k \vartheta(x) \cdot f(x^p)^{p^{k-1}(p-1)} + \sum_{j\ge 2}  p^{jk} \vartheta(x)^j f(x^p)^{p^{k-1}(p-j)}\binom p 2 \\
+ &= f(x^p)^{p^k} + p^{k+1} (\cdots) + p^{2k}\left(\sum \cdots\right)\\
+ &\equiv f(x^p)^{p^k} \pmod {p^{k+1}}
+\end{align*}
+
+其中用到了 $k\ge 1$ 时，$2k\ge k+1$。由第一数学归纳法可知，对于正整数 $k$ 均成立。
+
+\end{document}
+
+
+
