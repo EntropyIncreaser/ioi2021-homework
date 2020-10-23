@@ -32,6 +32,7 @@
 
 \providecommand*{\unit}[1]{\ensuremath{\mathrm{\,#1}}}
 \newcommand{\di}{\ensuremath{\mathrm{\,d}}}
+\newcommand{\Mul}{\ensuremath{\mathsf M}}
 
 % \setmonofont{Source Code Pro}
 
@@ -52,7 +53,7 @@
 
 \maketitle
 
-本文介绍作者的一道改编题，虽说为改编题，但是与广为人知的，原本作为一个知识点入门的原题相比，本题的数据范围却与之大相径庭。命制本题的目的在于，试图揭示拉格朗日反演的一个非标准的变式，以及引发关于小模数问题下的一些思考。
+本文介绍作者的一道改编题，虽说为改编题，但是与广为人知的，原本作为一个知识点入门的原题相比，本题的数据范围却与之大相径庭。命制本题的目的在于，试图揭示拉格朗日反演的一个非标准的变式，以及引发关于更多幂级数远处系数求值、以及小模数问题下的一些思考。
 
 \section{试题大意及数据范围}
 
@@ -104,7 +105,7 @@ $$
 [x^n] F(x) = \frac 1n[x^{n-1}] \left(\frac{x}{G(x)}\right)^n
 $$
 
-而形式幂的初等运算，前 $n$ 项系数的计算在模数为“NTT 模数”的情况下存在较为高效的 $\Theta(n\log n)$ 算法，原题中的模数 $950009857 = 453\times2^{21}+1$，在 $M-1$ 的质因子分解中具有很高的 $2$ 的幂次且为质数，正是“NTT 模数”。故问题得到解决。
+而形式幂的初等运算，前 $n$ 项系数的计算存在较为高效的 $\Theta(\Mul(n))$ 算法，其中 $\Mul(n)$ 表示进行两个长度为 $n$ 的多项式乘法的时间，原题中的模数 $950009857 = 453\times2^{21}+1$，在 $M-1$ 的质因子分解中具有很高的 $2$ 的幂次且为质数，是所谓的“NTT 模数”，适合进行高效的多项式乘法。故问题得到解决。
 
 \subsection{分析异同}
 
@@ -122,7 +123,7 @@ $$
 n[x^n]F(x)^k = k[x^{-k}]G(x)^{-n}
 $$
 
-接下来，我们将通过给出一个拉格朗日反演公式的证明，通过将其中间的步骤进行修改来得到一个不完全一样的拉格朗日反演公式，该公式中我们能够成功规避除法。
+接下来，我们将给出一个拉格朗日反演公式的证明，通过将其中间的步骤进行修改来得到一个不完全一样的拉格朗日反演公式，该公式中我们能够成功规避除法。
 
 \subsubsection{原形式的证明}
 
@@ -158,6 +159,8 @@ n[x^n] F^k &= [x^{-1}]kx^{k-1}G^{-n}\\
 n[x^n] F^k &= k[x^{-k}]G^{-n}
 \end{align*}
 
+故原式得证。
+
 \subsubsection{拉格朗日反演的另类形式}
 
 我们在推导过程中，考虑第一步就不是求导，而是乘以 $G'G^{-n-1}$：
@@ -187,14 +190,50 @@ $$
 
 \begin{align*}
 [x^n]F(x) &=[x^{n-1}] G'(x)\left(\frac {x}{G(x)}\right)^{n+1}\\
-&= [x^{n-1}] \frac{-\sum_{k\in D} kx^{k-1}}{(1-\sum_{k\in D} x^{k-1})^{n+1}}
+&= [x^{n-1}] \frac{1-\sum_{k\in D} kx^{k-1}}{(1-\sum_{k\in D} x^{k-1})^{n+1}}
 \end{align*}
 
-我们记 $P(x)=-\sum_{k\in D} kx^{k-1}, Q(x)=1-\sum_{k\in D} x^{k-1}$，那么现在我们的目的就是求 $[x^{n-1}] P/Q^{n+1}$。
+我们记 $P(x)=1-\sum_{k\in D} kx^{k-1}, Q(x)=1-\sum_{k\in D} x^{k-1}$，那么现在我们的目的就是求 $[x^{n-1}] P/Q^{n+1}$。
 
 当 $M$ 为质数的时候，我们需要考虑一个极为重要的定理，它刻画了同余 $p$ 时多项式高阶幂的性质。
 
 \subsubsection{Lucas 定理}
+
+Lucas 定理指出，任取多项式 $f\in \mathbb F_p[x]$，有 $f(x)^p \equiv f(x^p) \pmod p$。
+
+\textbf{证明}：首先我们考虑二项式系数 $\binom p k \bmod p$，根据质因子分解 $\binom pk = \frac{p!}{k!(p-k)!}$ 可知只有 $k=0$ 或 $p$ 时，该式子不含有质因子 $p$，因此 $\binom p k \bmod p$ 在 $k=0$ 或 $p$ 时取值为 $1$，否则为 $0$。
+
+接下来考虑归纳，设 $f(x)$ 的非 $0$ 项数为 $N$，设其为 $f(x)=g(x)+ax^k$，其中 $g(x)$ 的 $k$ 次项为 $0$，因此 $g(x)$ 的非 $0$ 项数为 $N-1$。由归纳假设，所有有 $N-1$ 个非 $0$ 项的多项式都满足 $g(x)^p\equiv g(x^p)\pmod p$，那么
+
+$$
+f(x)^p \equiv (g(x)+ax^k)^p \equiv g(x)^p + (ax^k)^p \equiv g(x^p) + ax^{kp} = f(x^p)
+$$
+
+根据归纳假设，命题得证。
+
+\subsubsection{类数位 DP 算法}
+
+根据 Lucas 定理，我们可以设计一个类数位 DP 的算法。我们考虑一个稍微一般性的问题，即计算生成函数 $P(x)Q(x)^n$ 的 $m$ 次项系数（其中 $n$ 是整数）。我们设 $n=pn_1+r, m = pm_1 + s$，其中 $0\le r,s <p$，则发现有
+
+\begin{align*}
+&\quad [x^m]P(x)Q(x)^n\\
+&\equiv [x^m]P(x)Q(x)^rQ(x^p)^{n_1}
+\end{align*}
+
+记 $P(x)Q(x)^r=\sum_{j=0}^{p-1} x^jR_j(x^p)$，即对于 $x$ 的次数 $\bmod p$ 的一个分类，那么
+
+\begin{align*}
+&\quad [x^m]P(x)Q(x)^rQ(x^p)^{n_1}\\
+&\equiv [x^{pn_1+s}]\left(\sum_{j=0}^{p-1} x^jR_j(x^p)\right)Q(x^p)^{n_1}\\
+&\equiv [x^{pn_1}]R_s(x^p)Q(x^p)^{n_1}\\
+&\equiv [x^{n_1}]R_s(x)Q(x)^{n_1}
+\end{align*}
+
+因此在这一过程中，我们的算法维护的就是 $(n,m,P(x))$ 到 $(n_1,m_1,R_s(x)=P_1(x))$ 的一个迭代。为了分析时间复杂度，接下来我们考察迭代过程中 $P$ 的次数，设 $\deg Q=K$，$\deg P = d$，那么由 $r\le p-1$ 可知，$\deg PQ^r \le d+K(p-1)$，进而得到 $\deg P_1 \le \frac{d + K(p-1)}p$。当初始条件有 $d<K$，可得 $\deg P_1 < \frac{K+K(p-1)}p = K$，因此根据循环不变式，在迭代过程中始终满足 $P$ 是不超过 $K$ 次多项式。
+
+由定义可知，$m_1 = \left\lfloor\frac mp\right\rfloor$，而在 $m=0$ 时我们可知答案就是 $[x^0]P$，因此迭代只进行 $\log_p m$ 轮。迭代的每轮中我们需要计算 $P(x)Q(x)^r$，我们可以预处理所有的 $Q(x)^r$，然后计算 $P(x)Q(x)^r$ 中同余 $p$ 余 $s$ 的项。由于 $P$ 始终不超过 $K$ 次，我们计算的复杂度为 $\Theta(K^2)$。由于在本题中 $K,p$ 同阶，这种方法比调用多项式乘法的 $\Theta(\Mul(Kp))$ 复杂度还要优秀。
+
+综上，这一部分的预处理需要进行 $\Theta(p)$ 次 $K$ 次多项式与 $\Theta(pK)$ 次多项式的乘法，时间复杂度为 $\Theta(p^2K^2)$。每次询问的复杂度中 $m$ 是 $\Theta(n)$ 的，故单次询问的复杂度为 $\Theta(K^2\log_p n)$。故该算法的复杂度为 $\Theta(p^2K^2 + TK^2\log_p n)$。
 
 \subsection{$M$ 为 $p^k$}
 
@@ -220,6 +259,10 @@ f(x)^{p^{k+1}} &= \left(f(x^p)^{p^{k-1}} + p^k \vartheta(x)\right)^p\\
 \end{align*}
 
 其中用到了 $k\ge 1$ 时，$2k\ge k+1$。由第一数学归纳法可知，对于正整数 $k$ 均成立。
+
+因此我们设 $Q_0(x) = Q(x)^{p^{k-1}}$，那么就有 $Q_0(x)^p \equiv Q_0(x^p) \pmod {p^k}$，我们就可以令 $P_0(x)=P(x)Q(x)^{n\bmod p^{k-1}}$，使用原来的算法实施 $[x^m]P_0(x)Q_0(x)^{\lfloor n/p^{k-1} \rfloor}$ 的计算。
+
+现在的多项式次数为 $K_0 = Kp^{k-1}$，因此总共的时间复杂度是 $\Theta(p^{2k}K^2 + Tp^{2(k-1)}K^2 \log_p n)$。
 
 \end{document}
 

@@ -27,7 +27,7 @@
   - [ ] H
   - [ ] I
   - [ ] J
-  - [ ] K
+  - [x] K
   - [ ] M
 - D: https://codeforces.com/gym/101471/
   - [ ] A
