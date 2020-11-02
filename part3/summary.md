@@ -58,7 +58,7 @@
   - [ ] F
   - [ ] G
   - [ ] H
-  - [ ] I
+  - [x] I
   - [ ] J
   - [x] K
   - [x] L
@@ -111,7 +111,7 @@
   - [ ] G
   - [ ] I
   - [ ] J
-  - [ ] L
+  - [x] L
 - N: https://codeforces.com/gym/101480/
   - [ ] C
   - [x] E
@@ -121,11 +121,11 @@
   - [ ] J
   - [ ] L
 - O: https://codeforces.com/gym/100543/
-  - [ ] A
+  - [x] A
   - [ ] B
-  - [ ] E
+  - [x] E
   - [ ] G
-  - [ ] J
+  - [x] J
   - [ ] K
   - [x] L
 - P: https://codeforces.com/gym/100299/
