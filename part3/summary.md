@@ -56,7 +56,7 @@
   - [ ] K
 - G: https://codeforces.com/gym/101630/
   - [ ] F
-  - [ ] G
+  - [x] G
   - [ ] H
   - [x] I
   - [ ] J
@@ -65,11 +65,11 @@
 - H: https://codeforces.com/gym/101190/
   - [x] B
   - [ ] C
-  - [ ] D
+  - [x] D
   - [ ] G
   - [ ] I
   - [ ] K
-  - [ ] L
+  - [x] L
   - [ ] M
 - I: https://codeforces.com/gym/100851/
   - [x] B
@@ -113,7 +113,7 @@
   - [ ] J
   - [x] L
 - N: https://codeforces.com/gym/101480/
-  - [ ] C
+  - [x] C
   - [x] E
   - [x] F
   - [ ] G
@@ -152,7 +152,7 @@
   - [x] I
   - [ ] J
 - S: https://codeforces.com/gym/100801/
-  - [ ] D
+  - [x] D
   - [ ] F
   - [x] G
   - [ ] I
