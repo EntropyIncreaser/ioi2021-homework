@@ -1,0 +1,81 @@
+% XeLaTeX can use any Mac OS X font. See the setromanfont command below.
+% Input to XeLaTeX is full Unicode, so Unicode characters can be typed directly into the source.
+
+% The next lines tell TeXShop to typeset with xelatex, and to open and save the source with Unicode encoding.
+
+%!TEX TS-program = xelatex
+%!TEX encoding = UTF-8 Unicode
+
+\documentclass[12pt]{ctexart}
+\usepackage{geometry}                % See geometry.pdf to learn the layout options. There are lots.
+\geometry{a4paper}                   % ... or a4paper or a5paper or ... 
+%\geometry{landscape}                % Activate for for rotated page geometry
+%\usepackage[parfill]{parskip}    % Activate to begin paragraphs with an empty line rather than an indent
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{tabularx}
+\usepackage{amsmath}
+\usepackage{mathrsfs}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{hyperref}
+\usepackage{amsthm}
+\usepackage{chemfig}
+\usepackage{mhchem}
+
+% Will Robertson's fontspec.sty can be used to simplify font choices.
+% To experiment, open /Applications/Font Book to examine the fonts provided on Mac OS X,
+% and change "Hoefler Text" to any of these choices.
+
+\usepackage{fontspec,xltxtra,xunicode}
+
+\providecommand*{\unit}[1]{\ensuremath{\mathrm{\,#1}}}
+\newcommand{\di}{\ensuremath{\mathrm{\,d}}}
+
+% \setmonofont{Source Code Pro}
+
+\setCJKmainfont{Noto Serif CJK SC}
+
+\CTEXsetup[format={\large\bfseries}]{section}
+
+\title{IOI2021 国家集训队第一阶段作业第一部分解题报告}
+\author{北京大学附属中学\quad 李白天}
+% \date{}
+
+\begin{document}
+
+\maketitle
+
+\section{gym101612F Fygon 2.0}
+
+来源：2017-2018 ACM-ICPC, NEERC, Northern Subregional Contest
+
+\subsection{题目大意}
+
+\newcommand{\for}{\texttt{for}}
+\newcommand{\lag}{\texttt{lag}}
+\providecommand*{\var}[1]{{\color{magenta}\texttt{<#1>}}}
+
+给一个仅由 \for 循环和 \lag 操作构成的程序，且保证程序仅为一路缩进到底的嵌套 \for 循环结构，最内层为一个单一的 \lag 操作。详言之，一个 \for 循环会声明一个整型变量 \var{variable} 且保证与外部变量不重名，该变量将从 \var{from} 迭代至 \var{to}（若 \var{from} 的值大于 \var{to} 则不会执行），其中 \var{from} 可以取 $1$ 或者外部循环定义的变量，\var{to} 可以取变量 \texttt{n}（一个输入的量）或者外部定义的变量。
+
+记 $f(n)$ 为给定程序执行的 \lag 次数，关于 $n$ 的函数。试求出非负整数 $k$ 和正有理数 $C$，满足
+
+$$
+\lim_{n\rightarrow \infty} \frac{f(n)}{C\cdot n^k} = 1
+$$
+
+其中 $C$ 的输出方式为输出其既约分数 $C=p/q, \gcd(p,q)=1$ 的 $p,q$。
+
+\subsection{数据范围}
+
+记所给的 \for 循环数量为 $k$，保证 $k\le 20$。
+
+\subsection{解题过程}
+
+首先，让我们将问题进行重新表述。记第 $j$ 个循环的变量为 $x_j$，根据 \for 循环的限制可知，我们所求的 $f(n)$ 就是对于每个循环变量，对于其各自的 $\var{from}_j$ 和 $\var{to}_j$，满足 $\var{from}_j \le x_j \le \var{to}_j$ 的全体整数解 $(x_1, \dots, x_k)$ 的数量。
+
+我们考虑这样一个简单的例子：有一个 $3$ 个 \for 循环组成的程序，变量约束为 $1\le x_1\le n, 1\le x_2\le x_1, $
+
+\newpage
+
+\end{document}

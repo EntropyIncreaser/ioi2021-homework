@@ -70,7 +70,7 @@
   - [ ] I
   - [ ] K
   - [x] L
-  - [ ] M
+  - [x] M
 - I: https://codeforces.com/gym/100851/
   - [x] B
   - [ ] C
