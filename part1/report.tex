@@ -1,3 +1,6 @@
+%!TEX TS-program = xelatex
+%!TEX encoding = UTF-8
+
 % XeLaTeX can use any Mac OS X font. See the setromanfont command below.
 % Input to XeLaTeX is full Unicode, so Unicode characters can be typed directly into the source.
 
@@ -22,6 +25,12 @@
 \usepackage{amsthm}
 \usepackage{chemfig}
 \usepackage{mhchem}
+\usepackage{titlesec}
+\usepackage{tcolorbox}
+\usepackage{fancyhdr}
+\usepackage{tikz-cd}
+
+\tcbuselibrary{skins, breakable, theorems}
 
 % Will Robertson's fontspec.sty can be used to simplify font choices.
 % To experiment, open /Applications/Font Book to examine the fonts provided on Mac OS X,
@@ -32,29 +41,83 @@
 \providecommand*{\unit}[1]{\ensuremath{\mathrm{\,#1}}}
 \newcommand{\di}{\ensuremath{\mathrm{\,d}}}
 
-% \setmonofont{Source Code Pro}
+% \setsansfont{TeX Gyre Heros}
 
-\setCJKmainfont{Noto Serif CJK SC}
+\newfontfamily\sfsf{TeX Gyre Heros}
 
-\CTEXsetup[format={\large\bfseries}]{section}
+\setCJKmainfont[BoldFont=Noto Serif CJK SC Black]{Noto Serif CJK SC}
+\setCJKsansfont[BoldFont=Noto Sans CJK SC Black]{Noto Sans CJK SC}
 
-\title{IOI2021 国家集训队第一阶段作业第一部分解题报告}
-\author{北京大学附属中学\quad 李白天}
-% \date{}
+\setCJKfamilyfont{emfont}[
+	BoldFont=PingFangSC-Medium
+]{PingFangSC-Regular}
+\renewcommand{\em}{\bfseries\sffamily\CJKfamily{emfont}} % 强调
+
+% \CTEXsetup[format={\large\bfseries}]{section}
+
+\titleformat{\section}
+{\centering\sffamily\Large\bfseries}{\sfsf{{\thesection}}}{1em}{}
+
+\titleformat{\subsection}
+{\sffamily\large\bfseries}{\sfsf{{\thesubsection}}}{1em}{}
+
+\titleformat{\subsubsection}
+{\sffamily\bfseries}{\sfsf{{\thesubsubsection}}}{1em}{}
+
+\newtcolorbox{source}{
+	breakable,
+	enhanced,
+	width = \textwidth,
+	colback = white, colbacktitle = white,
+	colframe = black, boxrule=0.2mm,
+	coltitle = black,
+	fonttitle = \sffamily,
+	attach boxed title to top left = {yshift=-\tcboxedtitleheight/2,  xshift=\tcboxedtitlewidth/4},
+	boxed title style = {boxrule=0pt, colframe=white},
+	before skip = 0.5cm,
+	top = 4mm,
+	bottom = 3mm,
+	title={来源}
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[C]{\leftmark}
+\fancyfoot[C]{\thepage}
+
+\linespread{1.5}
+\zihao{4}
+
+\title{\textbf{\Huge 解题报告\\
+\large IOI2021 国家集训队第一阶段作业第一部分}}
+\author{\textbf{北京大学附属中学\quad 李白天}}
+\date{}
 
 \begin{document}
 
 \maketitle
 
-\section{gym101612F Fygon 2.0}
+\tableofcontents
 
-来源：2017-2018 ACM-ICPC, NEERC, Northern Subregional Contest
+\newpage
+
+\section{Fygon 2.0}
+
+\begin{source}\center
+2017-2018 ACM-ICPC, NEERC
+
+Northern Subregional Contest (\href{https://codeforces.com/gym/101612/}{\texttt{gym101612F}})
+\end{source}
 
 \subsection{题目大意}
 
 \newcommand{\for}{\texttt{for}}
 \newcommand{\lag}{\texttt{lag}}
-\providecommand*{\var}[1]{{\color{magenta}\texttt{<#1>}}}
+\providecommand*{\var}[1]{{%\color{magenta}
+\texttt{<#1>}}}
+
+\theoremstyle{definition}
+\newtheorem*{example}{\bfseries\textsf {例}}
 
 给一个仅由 \for 循环和 \lag 操作构成的程序，且保证程序仅为一路缩进到底的嵌套 \for 循环结构，最内层为一个单一的 \lag 操作。详言之，一个 \for 循环会声明一个整型变量 \var{variable} 且保证与外部变量不重名，该变量将从 \var{from} 迭代至 \var{to}（若 \var{from} 的值大于 \var{to} 则不会执行），其中 \var{from} 可以取 $1$ 或者外部循环定义的变量，\var{to} 可以取变量 \texttt{n}（一个输入的量）或者外部定义的变量。
 
@@ -74,8 +137,108 @@ $$
 
 首先，让我们将问题进行重新表述。记第 $j$ 个循环的变量为 $x_j$，根据 \for 循环的限制可知，我们所求的 $f(n)$ 就是对于每个循环变量，对于其各自的 $\var{from}_j$ 和 $\var{to}_j$，满足 $\var{from}_j \le x_j \le \var{to}_j$ 的全体整数解 $(x_1, \dots, x_k)$ 的数量。
 
-我们考虑这样一个简单的例子：有一个 $3$ 个 \for 循环组成的程序，变量约束为 $1\le x_1\le n, 1\le x_2\le x_1, x_1 \le x_2\le x_3$。
+为了看清这个问题，我们不妨先考虑这样一个简单的例子：
+
+\begin{example}
+有一个 $3$ 个 \for 循环组成的程序，变量约束为 $1\le x_1\le n, 1\le x_2\le x_1, x_1 \le x_3\le x_2$。在这个例子中我们可以看到，因为 $x_1\le x_2$ 且 $x_2\le x_1$，所以必然有 $x_1=x_2$ 的时候才可能进入执行 \lag；进一步地，又因为 $x_1\le x_3 \le x_2=x_1$，我们有 $x_3=x_2=x_1$。由此我们看到，在这个例子中虽然有三个变量，实则只有一个自由度。执行次数 $f(n) = n$，因此 $C=1,k=1$。
+\end{example}
+
+上述例子启发我们用图论的视角来考察本问题。我们考虑由问题得到的若干变量之间的序关系转化为一个 $k$ 个节点的\emph{有向图} $G$，不妨将节点编号从 $1$ 至 $k$。若 \for 循环给出了 $x_i \le x_j$ 的限制，则将 $i$ 向 $j$ 连一条边。
+
+在图 $G$ 中，若 $i$ 可达 $j$，则说明存在一条路径 $i \rightarrow \cdots \rightarrow j$，对应于 \for 循环中发掘出的序关系的一条链 $x_i \le \cdots \le x_j$，根据序关系的传递性，可知 $x_i\le x_j$。
+
+我们再考虑图中的一个强连通分量 $S$，对于 $i,j\in S$，由强连通分量的定义可知 $i,j$ 是互相可达的，因此由上述分析可知 $x_i\le x_j$ 且 $x_j\le x_i$，由序关系的反对称性可知 $x_i=x_j$。
+
+由此可知，我们考虑将 $G$ 进行\emph{缩点}得到的图 $G^{\star}$，即 $G^{\star}$ 中的每个点对应于 $G$ 中的一个强连通分量，$G^{\star}$ 中的节点 $u^\star$ 向 $v^\star$ 连边 $(u^\star \neq v^\star)$，当且仅当对应于 $G$ 中的强连通分量 $S,T$ 存在 $i\in S,j\in T$ 且 $(i,j)\in G$。我们不妨设 $|G^\star| = t$，其节点从 $1^\star$ 编号至 $t^\star$。缩点后得到的图具有明确的实际意义，即我们不妨设为变量 $y_1, \dots, y_t$，则 $y_u$ 对应等于 $u^\star$ 在 $G$ 中所对应强连通分量的每一个变量（他们取值总是相同的）。即 $\{y_u\}$ 是 $\{x_i\}$ 的一组简化情况，且因为 $G^\star$ 是\emph{有向无环图}，我们有一个直觉性的事情是 $\{y_u\}$ 这组变量是具有 $t$ 个\emph{自由度}的。我们不妨考虑有向无环图的一个充要条件，即\emph{存在拓扑排序}。我们注意到，任取 $G^\star$ 的一个拓扑序 $\{p_u\}$，其与 $\binom n t$ 个满足 $y_u$ 互不相同的解一一对应。我们不难得出对应方式：
+
+\begin{itemize}
+\item 对于一个拓扑序 $p_1, \dots, p_t$ 满足对任意 $1\le u<v\le t$，$p_v$ 向 $p_u$ 没有边。那么我们任取 $\{1,\dots,n\}$ 的一组 $t$ 元子集，按照从小到大的方式赋予 $y_{p_1},\dots,y_{p_t}$，即得到了一组解，由拓扑排序的性质可知其合法。
+\item 对于任意一组 $y$ 值互不相同的解，我们设其大小关系为 $y_{p_1}<\dots<y_{p_t}$，那么由其合法性可知 $p_1, \dots, p_t$ 是一个合法的拓扑序，且 $y$ 的取值构成的集合对应于 $\{1,\dots,n\}$ 的一组 $t$ 元子集。
+\end{itemize}
+
+由前述分析，我们可知如果 $G^\star$ 有 $K$ 种拓扑序，则存在至少 $K \cdot \binom n t$ 种解。我们考虑分析 $\lim_{n\rightarrow \infty} \frac{\binom n t}{n^t}$，由于 $\binom nt = \frac{n(n-1)\cdots(n-t+1)}{t!}$ 是 $t$ 次多项式，我们可知这一极限是一非零常数，且该常数等于该多项式的 $t$ 次项，也即 $\frac 1{t!}$。
+
+而对于可能有数相等的情况呢？直觉上说由于其减小了自由度，是对我们所需的 $C,k$ 没有影响的。形式化地，我们考虑只要添加了若干个相等条件，那所剩的方案就可以进一步缩减为 $<k$ 个变量的相异整数解数。设其方案数是 $<k$ 次的多项式 $g(n)$，因此必有 $\lim_{n\rightarrow \infty} \frac {g(n)}{n^t}=0$。而我们添加的相等条件的总共方法数量虽然庞大，却只与 $k$ 有关，是有限多的，因此其总和除以 $n^t$，在 $n$ 趋于无穷大时仍然为 $0$。综上所述，该极限仅由互不相同的整数解贡献，且具体值为 $C=\frac K{t!}$。
+
+由 $K$ 的定义可知其是整数且 $1\le K\le t!$，而 $t\le k\le 20$，故 $t! \leq 20! \approx 2.43\times 10^{18}$，故该分子分母可以通过 64 位整型存储，通过欧几里得算法计算出二者的最大公约数并约分。
+
+接下来所剩的便是算法问题了，其一为如何得到 $G^\star$，其二为如何进一步计算出 $K$。
+
+对于求出 $G^\star$，我们可以使用用广为人知的 Tarjan 强连通分量算法，并进一步根据得到的强连通分量按照前述定义建出 $G^\star$，由于 $G$ 的点数为 $k$，边数不超过 $2k$，这部分的复杂度为 $\Theta(k)$。
+
+接下来求算 $K$ 的部分为算法的瓶颈，我们考虑进行状态压缩动态规划，设 $f(S)$ 为 $G^\star$ 的导出子图 $S$ 的拓扑序数量 $(S\subseteq G^\star)$。立得 $f(\varnothing)=1$，而对于 $S$ 非空的情况，考虑接下来拓扑排序的第一个点，若 $u^\star$ 在 $S$ 的导出子图中没有入边，则可以作为第一个点。我们记入点集 $I(u^\star)=\{v^\star \vert (v^\star,u^\star)\in G^\star\}$，则可得对于 $S\neq \varnothing$，有转移
+
+$$
+f(S) = \sum_{u^\star \in S\wedge I(u^\star) \cap S=\varnothing} f(S\backslash \{u^\star\})
+$$
+
+其中，入度判据在实现时可以通过位运算在常数时间内进行判定，总共有 $2^t$ 个状态，每个状态只需 $\Theta(t)$ 的时间对 $u^\star$ 进行枚举，故这一部分的复杂度为 $\Theta(t2^t)$。
+
+综上，本题在 $t=k$，即 $G$ 不发生退化的情况下达到最坏复杂度，为 $\Theta(k2^k)$，而题目限制中满足 $k\le 20$，是完全可以接受的。事实上，该问题已经被证明是 \emph{\#P-Complete 问题}\cite{sharppc}，因此我们也可以基本满足于指数级复杂度的算法了。
 
 \newpage
+
+\section{Evolution in Parallel}
+
+\begin{source}\center
+2015 ACM-ICPC World Finals (\href{https://codeforces.com/gym/101239/}{\texttt{gym101239E}})
+\end{source}
+
+\subsection{题目大意}
+
+给出 $n$ 个字符串 $S_1, \dots, S_n$ 和一个目标串 $T$，设 $S_0=\varnothing$ 为空串以及 $S_{n+1}=T$，问能否找出两条以 $0$ 为起点，以 $n+1$ 为终点的路线，满足：
+
+\begin{itemize}
+\item 他们仅在起终点处相交，且 $1,\dots,n$ 每个点均在一条路径中，即 $p_1,\dots,p_{s_1}$ 和 $q_1,\dots,q_{s_2}$ 给出了 $\{1,\dots,n\}$ 的一个划分 $(p_0=q_0=0, p_{s_1+1}=q_{s_2+1}=n+1)$。
+\item 路径中的每个点所代表的串为路径下一个点的\emph{严格子序列}，即可以通过插入正整数个字符来得到对应字符串。
+\end{itemize}
+
+如有解，则给出一组解。
+
+\subsection{数据范围}
+
+保证 $1\le n, |S_i|, |T|\le 4\times 10^3$。字符集为 $\Sigma = \{\texttt{A},\texttt{C},\texttt{M}\}$。输入的所有串互不相同。
+
+\subsection{解题过程}
+
+首先让我们来整理一下子序列关系的性质，接下来我们记 $S \prec T$ 当且仅当 $S$ 是 $T$ 的一个严格子序列。我们容易发现这一关系具有\emph{传递性}：若 $S\prec T$ 且 $T\prec R$，那么 $S\prec R$，根据定义我们只需将 $T$ 添加得到 $R$ 的那些字符按顺序拼接在 $S$ 添加得到 $T$ 的过程之后，即可验证这一性质。
+
+接下来，我们不难注意到 $S\prec T$ 有一个必要条件：$|S|<|T|$，因为 $T$ 总是由 $S$ 添加字符得到的。那么我们不妨将 $S_i$ 按照长度从小到大排列，那么接下来就满足一个性质：$S_i \prec S_j \Rightarrow i < j$。此时序列 $p,q$ 只能是分别单调递增的。
+
+接下来我们假设恰好规划好了 $1\sim k$，需要确认依此前提能否得到一个解。需注意到一个虽平凡却重要的事实：此时 $p,q$ 必有一者的尾部为 $k$。接着不妨设另一者为 $t$，我们首先来尝试讨论将 $k+1$ 加入哪条路径，我们可进行分类讨论：
+
+\begin{enumerate}
+\item $S_t \nprec S_{k+1} \wedge S_k \nprec S_{k+1}$，这种情况下只能是无解的，因为二者均不可能经过 $k+1$。
+\item $S_t \prec S_{k+1}, S_k \prec S_{k+1}$ 恰有一者成立，此时我们分配 $k+1$ 的上一个节点的方案是唯一的，所以只能选择对应方案，进而规约到 $k+1$ 前缀对应的问题。
+\item $S_t \prec S_{k+1} \wedge S_k\prec S_{k+1}$ 即同时成立，此时的情况是较为复杂的，我们无法在此时断言由何者连向 $k+1$ 是更正确的，因此我们需要考虑更往后的字符串。
+\end{enumerate}
+
+接下来我们需要详细讨论上述的第 3 种情形，我们考虑最大的 $r$，满足关系 $S_k \prec S_{k+1}\prec \cdots \prec S_r$。若 $r=n+1$ 此时我们已经得到了一组解，接下来考虑非平凡的情况。此时依假设有 $S_r \nprec S_{r+1}$，因此 $r,r+1$ 应各属一条路径，而 $r$ 在 $r+1$ 前缀部分不再有后继了，因此我们知道有解情况被转化成判断唯一一种 $r+1$ 前缀的情况是否有解。而在判断 $(r,r+1)$ 有解之前，我们还需明确 $k+1 \sim r+1$ 一族该如何规划路径。读者可端详已将已有条件展示清楚的下图：
+
+\begin{center}
+% https://tikzcd.yichuanshen.de/#N4Igdg9gJgpgziAXAbVABwnAlgFyxMJZABgBoBGAXVJADcBDAGwFcYkRiQBfU9TXfIRQAmUsWp0mrdjm68QGbHgJFRwiQxZtEIANZy+SwUQDMFDVO16A1OQML+yocgCs5mpuk6ATvcUCVFAA2d0ktdm9bbgkYKABzeCJQADNvCABbJDMQHAgkABYPS3YAHRK0bxgAYwACMqqoCBw4MorqkBpGLDArKHo4AAtY+1SMpHIaXKyi8J1WyqqRtMzEURy8xGzPK3n2zvoAIxhGAAVHYx8sOIHZHhTlpDJ18ZojsChHma8QXar6xuadXKCw6IC6PXYfUGwxoQ3oHx0kAhk3oWEY7CRbH2R1O50CYJgyVu8lGKyeU1W2OOZyM+O8VxuoO2pWB1X+TRarMWnW6vX6Qw+dxApJez0QbhAbwRJiezJ0AH4lmNKWKJVKkABaGVU3G0oQgenXWRfKyKriULhAA
+\begin{tikzcd}
+                                                                                             &  & t \arrow[rd, "\prec"] \arrow[rrrrd, "?", bend left]    &                                             &  &   &     \\
+0 \arrow[rru, "\prec\cdots \prec", no head, dashed] \arrow[rrd, "\prec\cdots\prec"', dashed] &  &                                                        & k+1 \arrow[rr, "\prec \cdots\prec", dashed] &  & r & r+1 \\
+                                                                                             &  & k \arrow[ru, "\prec"'] \arrow[rrrru, "?"', bend right] &                                             &  &   &    
+\end{tikzcd}
+\end{center}
+
+可以发现，若 $S_t\nprec S_{r+1} \wedge S_k \nprec S_{r+1}$，由于二者已经占据了两条路径，此时必然无解，否则只需将其中任何符合子序列条件的一者连接到 $r+1$，并将另一者连接到 $k+1$，就完成了这一部分的构造。
+
+由此，我们可以将上述判断方式改写为算法。由于每一步要么得到无解，要么得到唯一的后继情况，我们在实现时实际上只需写成迭代的形式。
+
+对于判定 $S_i$ 是否是 $S_j$ 的一个子序列，我们可以采取贪心算法，我们考虑维护对于 $S_j$ 的前 $k$ 个字符构成的前缀，$S_i$ 的最大前缀长度使得该前缀是这 $S_j$ 的该前缀的子序列。当 $k$ 增大的时候，只需判定对应的前缀能否增大 $1$。由于我们只需在 $|S_i|<|S_j|$ 的时候运行这一过程，因此复杂度是 $\Theta(|S_j|)$ 的。
+
+为了分析所有的比较所引发的复杂度，我们仔细分析上述的迭代过程，注意到在进行分类讨论的归类情况中，会有两个串与 $S_{k+1}$ 进行比较，而在第三类的情况中，对于 $S_{r+1}$ 总共与前面的三个串 $S_t,S_k,S_{r+1}$ 进行了比较。因此综上所述，每个串作为较长串比较的次数不超过 $3$ 次。比较所消耗的总共复杂度为 $\Theta(\sum |S_i|)$，即总共的串长。
+
+而余下的其他部分皆非瓶颈。最初所进行的排序如使用基数排序便可做到 $\Theta(\max |S_i|)$，最后的检验复杂度为 $\Theta(|T|)$。综上所述，本题在 $\Theta(\sum |S_i| + |T|)$ 的时间内得到解决，由于这已经达到了输入下界，是一个优秀的算法。
+
+\newpage
+
+\begin{thebibliography}{}
+\addcontentsline{toc}{section}{参考文献}
+\bibitem{sharppc} Brightwell, Graham R.; Winkler, Peter (1991). "Counting linear extensions". Order. 8 (3): 225–242. doi:\href{https://doi.org/10.1007\%2FBF00383444}{\texttt{10.1007/BF00383444}}
+\end{thebibliography}
 
 \end{document}

@@ -150,7 +150,7 @@
   - [x] G
   - [ ] H
   - [x] I
-  - [ ] J
+  - [x] J
 - S: https://codeforces.com/gym/100801/
   - [x] D
   - [x] F
