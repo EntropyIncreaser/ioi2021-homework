@@ -80,6 +80,11 @@
 	title={来源}
 }
 
+\hypersetup{colorlinks = true,
+			linkcolor = blue,
+			citecolor = red,
+			urlcolor = teal}
+
 \pagestyle{fancy}
 \fancyhf{}
 \fancyhead[C]{\leftmark}
@@ -164,7 +169,7 @@ $$
 
 接下来所剩的便是算法问题了，其一为如何得到 $G^\star$，其二为如何进一步计算出 $K$。
 
-对于求出 $G^\star$，我们可以使用用广为人知的 Tarjan 强连通分量算法，并进一步根据得到的强连通分量按照前述定义建出 $G^\star$，由于 $G$ 的点数为 $k$，边数不超过 $2k$，这部分的复杂度为 $\Theta(k)$。
+对于求出 $G^\star$，我们可以使用广为人知的 Tarjan 算法得到图的各强连通分量，并进一步根据得到的强连通分量按照前述定义建出 $G^\star$，由于 $G$ 的点数为 $k$，边数不超过 $2k$，这部分的复杂度为 $\Theta(k)$。
 
 接下来求算 $K$ 的部分为算法的瓶颈，我们考虑进行状态压缩动态规划，设 $f(S)$ 为 $G^\star$ 的导出子图 $S$ 的拓扑序数量 $(S\subseteq G^\star)$。立得 $f(\varnothing)=1$，而对于 $S$ 非空的情况，考虑接下来拓扑排序的第一个点，若 $u^\star$ 在 $S$ 的导出子图中没有入边，则可以作为第一个点。我们记入点集 $I(u^\star)=\{v^\star \vert (v^\star,u^\star)\in G^\star\}$，则可得对于 $S\neq \varnothing$，有转移
 
@@ -174,7 +179,7 @@ $$
 
 其中，入度判据在实现时可以通过位运算在常数时间内进行判定，总共有 $2^t$ 个状态，每个状态只需 $\Theta(t)$ 的时间对 $u^\star$ 进行枚举，故这一部分的复杂度为 $\Theta(t2^t)$。
 
-综上，本题在 $t=k$，即 $G$ 不发生退化的情况下达到最坏复杂度，为 $\Theta(k2^k)$，而题目限制中满足 $k\le 20$，是完全可以接受的。事实上，该问题已经被证明是 \emph{\#P-Complete 问题}\cite{sharppc}，因此我们也可以基本满足于指数级复杂度的算法了。
+综上，本题在 $t=k$，即 $G$ 不发生退化的情况下达到最坏复杂度，为 $\Theta(k2^k)$，而题目限制中满足 $k\le 20$，是完全可以接受的。事实上，有向无环图的拓扑排序计数问题已经被证明是 \emph{\#P-Complete 问题}\cite{sharppc}，因此我们也可以基本满足于指数级复杂度的算法了。
 
 \newpage
 
@@ -213,7 +218,7 @@ $$
 \item $S_t \prec S_{k+1} \wedge S_k\prec S_{k+1}$ 即同时成立，此时的情况是较为复杂的，我们无法在此时断言由何者连向 $k+1$ 是更正确的，因此我们需要考虑更往后的字符串。
 \end{enumerate}
 
-接下来我们需要详细讨论上述的第 3 种情形，我们考虑最大的 $r$，满足关系 $S_k \prec S_{k+1}\prec \cdots \prec S_r$。若 $r=n+1$ 此时我们已经得到了一组解，接下来考虑非平凡的情况。此时依假设有 $S_r \nprec S_{r+1}$，因此 $r,r+1$ 应各属一条路径，而 $r$ 在 $r+1$ 前缀部分不再有后继了，因此我们知道有解情况被转化成判断唯一一种 $r+1$ 前缀的情况是否有解。而在判断 $(r,r+1)$ 有解之前，我们还需明确 $k+1 \sim r+1$ 一族该如何规划路径。读者可端详已将已有条件展示清楚的下图：
+接下来我们需要详细讨论上述的第 3 种情形，我们考虑最大的 $r$，满足关系 $S_k \prec S_{k+1}\prec \cdots \prec S_r$。若 $r=n+1$ 此时我们已经得到了一组解，接下来考虑非平凡的情况。此时依 $r$ 的最大性有 $S_r \nprec S_{r+1}$，因此 $r,r+1$ 应各属一条路径，且 $r$ 和 $r+1$ 此时各为一个结尾，因此我们知道有解情况被转化成判断唯一一种 $r+1$ 前缀的情况是否有解。而在判断其是否有解之前，我们还需明确 $k+1 \sim r+1$ 一族该如何规划路径。读者可端详已将已有条件展示清楚的下图：
 
 \begin{center}
 % https://tikzcd.yichuanshen.de/#N4Igdg9gJgpgziAXAbVABwnAlgFyxMJZABgBoBGAXVJADcBDAGwFcYkRiQBfU9TXfIRQAmUsWp0mrdjm68QGbHgJFRwiQxZtEIANZy+SwUQDMFDVO16A1OQML+yocgCs5mpuk6ATvcUCVFAA2d0ktdm9bbgkYKABzeCJQADNvCABbJDMQHAgkABYPS3YAHRK0bxgAYwACMqqoCBw4MorqkBpGLDArKHo4AAtY+1SMpHIaXKyi8J1WyqqRtMzEURy8xGzPK3n2zvoAIxhGAAVHYx8sOIHZHhTlpDJ18ZojsChHma8QXar6xuadXKCw6IC6PXYfUGwxoQ3oHx0kAhk3oWEY7CRbH2R1O50CYJgyVu8lGKyeU1W2OOZyM+O8VxuoO2pWB1X+TRarMWnW6vX6Qw+dxApJez0QbhAbwRJiezJ0AH4lmNKWKJVKkABaGVU3G0oQgenXWRfKyKriULhAA
@@ -233,6 +238,93 @@ $$
 为了分析所有的比较所引发的复杂度，我们仔细分析上述的迭代过程，注意到在进行分类讨论的归类情况中，会有两个串与 $S_{k+1}$ 进行比较，而在第三类的情况中，对于 $S_{r+1}$ 总共与前面的三个串 $S_t,S_k,S_{r+1}$ 进行了比较。因此综上所述，每个串作为较长串比较的次数不超过 $3$ 次。比较所消耗的总共复杂度为 $\Theta(\sum |S_i|)$，即总共的串长。
 
 而余下的其他部分皆非瓶颈。最初所进行的排序如使用基数排序便可做到 $\Theta(\max |S_i|)$，最后的检验复杂度为 $\Theta(|T|)$。综上所述，本题在 $\Theta(\sum |S_i| + |T|)$ 的时间内得到解决，由于这已经达到了输入下界，是一个优秀的算法。
+
+\newpage
+
+\section{Interactive Interception}
+
+\begin{source}\center
+2013-2014 ACM-ICPC, NEERC
+
+Northeastern European Regional Contest (\href{https://codeforces.com/gym/100307}{\texttt{gym100307I}})
+\end{source}
+
+\subsection{题目大意}
+
+这是一道交互题。
+
+已知数轴上有一点在进行匀速运动。初始给定正整数 $p,v$，表示该点位于一整点 $x$ 满足 $x \in [0,p]$，且具有整数速度 $q$ 满足 $q\in [0,v]$。程序需要最晚在第 $100$ 个时刻确认此时刻的该点所在位置。
+
+从 $0$ 时刻开始每个时刻，程序可以给出一个区间 $[L, R](0\le L\le R\le 10^9)$，交互器将返回此时该点的位置是否位于 $[L,R]$ 内部，收到消息之后进入下一时刻，且该点的位置增加 $q$。
+
+\subsection{数据范围}
+
+保证 $1\le p,v\le 10^5$。
+
+\subsection{解题过程}
+
+由于可以询问的范围是一个区间，这启发我们通过二分查找来确定点的位置和速度。在最初，我们若令 $L=0, R=\lfloor \frac p 2 \rfloor$，则询问结果能帮助我们直接排除初始位置中一半的可能性。若正确则说明整点落在 $[0, \lfloor \frac p 2 \rfloor]$ 内。而错误则说明整点落在了 $[\lfloor \frac p 2\rfloor + 1, p]$ 内。但当进入下一个时刻的时候便麻烦了：设上一时刻点在区间 $[l, r]$ 内，由于该点的速度尚未确定，假设速度为 $0$，那位置还是落在 $[l, r]$ 内。但如果速度为 $1$，就会落在 $[l+1,r+1]$ 内……实际上我们能确定的候选位置，仅仅是这些情况的并。即此时我们只能断言位置在 $[l, r+v]$ 内。但是注意到在下一次询问得到回答后，我们又可以反过来推断速度的可能区间。具体地，我们假设当前位于时刻 $t$，若已知在 $k(0\le k\le t)$ 时刻，点的位置在区间 $[l_k, r_k]$ 内，那么由题设有不等式
+
+$$
+l_k \le x + qk\le r_k
+$$
+
+而任取 $j<k$ 整理不等式可得
+
+\begin{align}
+x+kq & \le r_k \nonumber  \\
+-x-jq & \le -l_j \nonumber \\
+(k-j) q & \le r_k - l_j \nonumber \\
+q & \le \frac {r_k - l_j}{k-j} \label{boundq}
+\end{align}
+
+对称地，由 $x+kq\ge l_k$ 和 $-x-jq \ge -r_j$ 可得 $q\ge  \frac{l_k -r_j}{k-j}$。
+
+因此，当 $t$ 时刻的位置区间 $[l_t, r_t]$ 得到确定之后，我们由 $j<k=t$ 的情况得到了新的 $2(t-1)$ 组不等式，从而进一步限制速度区间 $[q_l, q_r]$。
+
+而在进行 $t$ 时刻的询问的时候，我们同样需要将以前的所有信息纳入考虑，可得
+
+\begin{align*}
+x + jq & \ge l_j\\
+x + tq & \ge l_j + (t-j)q\\
+ & \ge l_j + (t-j)q_l
+\end{align*}
+
+对称地，我们可以得到 $x + tq \le r_j + (t-j)q_r$。这些限制就限定出了当前的位置区间 $[x_l,x_r]$，我们取 $x_m=\lfloor \frac {x_l+x_r}2\rfloor$ 作为中点，即可询问点在是否在区间 $[x_l, x_m]$，若不是则说明在 $[x_m+1,x_r]$，如此一来便将候选位置缩小一半了。
+
+而在这一过程中，候选的区间每次是随下一个时刻重新确定，然后减半，往复循环，在每次重新确定的过程中，区间是有可能再次变大的。这个过程的实际复杂度还需我们严谨确认。
+
+为了方便分析，我们不妨将问题适当放宽：假设最初的位置和速度分别是在 $[0,p]$ 和 $[0,v]$ 内的实数，而我们每次询问的范围也是实数区间，当我们某个时刻确认的位置区间长度 $<1$ 时则算成功。
+
+容易发现这个转化是严格不弱于原问题的，因为当确认的区间长度 $<1$ 时仅有一个整点，而询问时只需将区间的左端向上取整，右端向下取整。
+
+接下来我们考虑两个量， $P_t$ 表示在 $t$ 时刻的询问完成后确认的位置区间长度，$V_t$ 表示在 $t$ 时刻的询问完成后确认的速度区间长度。依题设我们可知 $V_0=v$，而第一步二分使得 $P_0= \frac p2$。
+
+考虑 $P_t$ 的一个上界，任取 $j<t$，由于在确认区间的时候会对其取交，而 $j$ 时刻得到的区间在 $t$ 时刻的长度为 $P_j+(t-j)V_{t-1}$，因此我们得到
+
+\begin{equation}
+P_t \le \frac{P_j + (t-j)V_{t-1}}2 \label{boundp}
+\end{equation}
+
+接着，我们考虑 $V_t$ 的上界。不妨设在 $t$ 时刻最终确认的区间为 $[l_t,r_t]$，由 \eqref{boundq} 及其对称式子可得，
+
+\begin{align}
+q_r &\le \frac {r_t - l_j}{t-j}\nonumber\\
+q_l &\ge \frac {l_t - r_j}{t-j}\nonumber\\
+V_t &= q_r-q_l\nonumber\\
+ &\le \frac {r_t - l_t + r_j - l_j}{t-j}\nonumber\\
+ &= \frac{P_t + P_j}{t-j} \label{boundv}
+\end{align}
+
+由此，\eqref{boundp} 和 \eqref{boundv} 整体构成了一组交错影响的不等式关系。若设 $p,v\le N$，依其逐项递推可得到系数 $x_t, y_t$ 满足 $P_t \le x_t N, V_t\le y_t N$。实际计算发现，在 $t=64$ 时有 $x_t \approx 4.7 \times 10^{-6}$。因此在题目给定的数据范围下，$2\cdot P_{64} \leq 2\cdot x_{64} \cdot 10^5 < 1$，故我们得到了一个上界，即询问最晚会在第 $64$ 个时刻结束。
+
+于此同时，我们也可分析这一算法的渐进行为。注意到 \eqref{boundp} 和 \eqref{boundv} 这两组不等式均具有平移性质，即对于 $(t, j)$ 之间的不等式系数与 $(t+1,j+1)$ 之间的不等式系数是相同的，而涉及的变量相差一个平移。
+
+由此可知，若存在常数 $d, \alpha (\alpha < 1)$ 使得 $P_d \le \alpha \cdot P_0$ 且 $V_d \le \alpha \cdot V_0$，那么对所有 $t\ge d$ 均有 $P_t \le \alpha P_{t-d}$。进而有 $P_t \le \alpha^{\lfloor t/d\rfloor} P_0 \le \alpha^{\lfloor t/d\rfloor} N$。由此可导出在不超过 $d\log_{1/\alpha} N + O(1)$ 的时刻内即可确定位置，进而说明总共的询问次数为 $\Theta(\log N)$。
+
+经计算发现，取 $d=5$ 时，$\alpha \approx 0.88$ 满足条件。由此可知上述算法的询问此时为 $\Theta(\log \max (p, v))$，而由于中途还有一层枚举，所以程序执行的复杂度为 $\Theta(\log^2 \max(p, v))$。
+
+此外，注意到本题的答案空间有 $(p+1)\cdot (v+1)$ 种，而询问的结果只有 $2$ 种，因此从信息熵的角度可知，最优的询问策略在最坏情况下也至少需要 $\log_2 ((p+1)\cdot (v+1)) = \Theta (\log \max (p, v))$ 次询问。从这方面考虑，本算法的询问复杂度已经达到最优。
 
 \newpage
 
