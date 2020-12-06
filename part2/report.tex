@@ -21,8 +21,13 @@
 \usepackage{color}
 \usepackage{hyperref}
 \usepackage{amsthm}
-\usepackage{chemfig}
-\usepackage{mhchem}
+\usepackage{titlesec}
+\usepackage{tcolorbox}
+\usepackage{fancyhdr}
+\usepackage{multirow}
+\usepackage{longtable}
+
+\tcbuselibrary{skins, breakable, theorems}
 
 % Will Robertson's fontspec.sty can be used to simplify font choices.
 % To experiment, open /Applications/Font Book to examine the fonts provided on Mac OS X,
@@ -34,26 +39,64 @@
 \newcommand{\di}{\ensuremath{\mathrm{\,d}}}
 \newcommand{\Mul}{\ensuremath{\mathsf M}}
 
-% \setmonofont{Source Code Pro}
 
-\setCJKmainfont{Noto Serif CJK SC}
+% \setsansfont{TeX Gyre Heros}
 
-\CTEXsetup[format={\large\bfseries}]{section}
+\newfontfamily\sfsf{TeX Gyre Heros}
 
-\newtheorem{Def}{\hspace{2em}定义}
-\newtheorem{Thm}{\hspace{2em}定理}
-\newtheorem{Lem}{\hspace{2em}引理}
+\setCJKmainfont[BoldFont=Noto Serif CJK SC Black]{Noto Serif CJK SC}
+\setCJKsansfont[BoldFont=Noto Sans CJK SC Black]{Noto Sans CJK SC}
 
-\title{《带加强和多项木》命题报告\\
-\large IOI2021 国家集训队第一阶段作业第二部分}
-\author{北京大学附属中学\quad 李白天}
-% \date{}
+\setCJKfamilyfont{emfont}[
+	BoldFont=PingFangSC-Medium
+]{PingFangSC-Regular}
+\renewcommand{\em}{\bfseries\sffamily\CJKfamily{emfont}} % 强调
+
+% \CTEXsetup[format={\large\bfseries}]{section}
+
+\titleformat{\section}
+{\centering\sffamily\Large\bfseries}{\sfsf{{\thesection}}}{1em}{}
+
+\titleformat{\subsection}
+{\sffamily\large\bfseries}{\sfsf{{\thesubsection}}}{1em}{}
+
+\titleformat{\subsubsection}
+{\sffamily\bfseries}{\sfsf{{\thesubsubsection}}}{1em}{}
+
+
+\hypersetup{colorlinks = true,
+			linkcolor = blue,
+			citecolor = red,
+			urlcolor = teal}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[C]{\leftmark}
+\fancyfoot[C]{\thepage}
+
+\linespread{1.5}
+\zihao{4}
+
+\theoremstyle{theorem}
+\newtheorem{lemma}{\bfseries\textsf {引理}}
+
+\theoremstyle{theorem}
+\newtheorem{theorem}{\bfseries\textsf {定理}}
+
+\title{\textbf{\Huge 《带加强和多项木》解题报告\\
+\large IOI2021 国家集训队第一阶段作业第二部分}}
+\author{\textbf{北京大学附属中学\quad 李白天}}
+\date{}
 
 \begin{document}
 
 \maketitle
 
-本文介绍作者的一道改编题，虽说为改编题，但是与广为人知的，原本作为一个知识点入门的原题相比，本题的数据范围却与之大相径庭。命制本题的目的在于，试图揭示拉格朗日反演的一个非标准的变式，以及引发关于更多幂级数远处系数求值、以及小模数问题下的一些思考。
+本文介绍作者的一道改编题，虽说为改编题，但是与广为人知的，原本作为一个知识点入门的原题相比，本题的数据范围却是大相径庭。命制本题的目的在于，试图揭示拉格朗日反演的一个非标准的变式，以及引发关于更多幂级数远处系数求值、以及小模数问题下的额外性质的一些思考。
+
+\tableofcontents
+
+\newpage
 
 \section{试题大意及数据范围}
 
@@ -63,7 +106,7 @@
 
 带加强认为一颗有根树的稳定程度取决于这棵树的每个节点有几个孩子，于是他规定了一个正整数集合 $D$，称一颗有根树是“铁”的，当且仅当对于这棵树的每一个非叶节点，设其有 $x$ 个孩子，那么 $x\in D$。
 
-带加强每次询问你一个 $n$，请你回答他有多少颗 $n$ 个\textbf{叶子}的有根树是“铁”的，答案对 $M$ 取模。
+带加强每次询问你一个 $n$，请你回答他有多少颗 $n$ 个\emph{叶子}的有根树是“铁”的，答案对 $M$ 取模。
 
 \subsection{输入格式}
 
@@ -76,6 +119,43 @@
 \subsection{输出格式}
 
 输出 $T$ 行，按照询问顺序输出对应的答案。
+
+\subsection{数据范围}
+
+对于 $100\%$ 的数据范围，保证 $1\le n\le 10^{18}, 2\le K, M\le 50, 1\le T\le 100$。
+
+\newpage
+
+\begin{table}[]
+\centering
+\begin{tabular}{|c|c|c|c|c|c|}
+\hline
+子任务 & 分值   & $n\le$                     & $T=$                   & 特殊限制 A            & 特殊限制 B       \\ \hline
+$1$ & $10$ & $100$                      & $100$                  & \multirow{3}{*}{} &              \\ \cline{1-4} \cline{6-6} 
+$2$ & $4$  & \multirow{2}{*}{$10^4$}    & \multirow{2}{*}{$1$}   &                   & $\checkmark$ \\ \cline{1-2} \cline{6-6} 
+$3$ & $6$  &                            &                        &                   &              \\ \hline
+$4$ & $20$ & \multirow{4}{*}{$10^{18}$} & \multirow{4}{*}{$100$} & $\checkmark$      & $\checkmark$ \\ \cline{1-2} \cline{5-6} 
+$5$ & $15$ &                            &                        &                   &              \\ \cline{1-2} \cline{5-6} 
+$6$ & $15$ &                            &                        & \multirow{2}{*}{} & $\checkmark$ \\ \cline{1-2} \cline{6-6} 
+$7$ & $20$ &                            &                        &                   &              \\ \hline
+\end{tabular}
+\end{table}
+
+特殊限制 A：$M$ 为质数
+
+特殊限制 B：$\gcd(n,M)=1$
+
+\newpage
+
+\section{说明}
+
+在开始讨论之前，在此假设读者对于 OI 中已经普及的形式幂级数相关算法以及理论有较为系统的认知。包括但不限于：多项式乘法、形式幂级数乘法逆、幂指对函数的运算以及拉格朗日反演公式。我们接下来会使用如下符号：
+
+\begin{itemize}
+\item \emph{多项式乘法：}记 $\Mul(n)$ 表示两个 $n$ 次多项式，计算其乘积的各项系数所消耗的时间。在 OI 中直接认为 $\Mul(n) = \Theta(n\log n)$。此外，根据形式幂上的牛顿迭代法，形式幂级数乘法逆、幂指对函数前 $n$ 项的运算均为 $\Theta(\Mul(n))$。
+\end{itemize}
+
+\newpage
 
 \section{与原题的对比}
 
@@ -105,13 +185,15 @@ $$
 [x^n] F(x) = \frac 1n[x^{n-1}] \left(\frac{x}{G(x)}\right)^n
 $$
 
-而形式幂的初等运算，前 $n$ 项系数的计算存在较为高效的 $\Theta(\Mul(n))$ 算法，其中 $\Mul(n)$ 表示进行两个长度为 $n$ 的多项式乘法的时间，原题中的模数 $950009857 = 453\times2^{21}+1$，在 $M-1$ 的质因子分解中具有很高的 $2$ 的幂次且为质数，是所谓的“NTT 模数”，适合进行高效的多项式乘法。故问题得到解决。
+而对于形式幂的初等运算，存在较为高效的 $\Theta(\Mul(n))$ 算法，原题中的模数 $950009857 = 453\times2^{21}+1$，在 $M-1$ 的质因子分解中具有很高的 $2$ 的幂次且为质数，是所谓的“NTT 模数”，适合进行高效的多项式乘法。故问题得到解决。
 
 \subsection{分析异同}
 
 与改编题的数据范围相比，原题的模数是非常大的质数，同时 $K$ 也可做到较大的范围。但是 $n$ 的范围却显著的收到了限制。
 
 同时，原本做法的理论层面还受到了一个严重的约束：在传统的拉格朗日反演公式中，我们需要在计算的最后乘以 $\frac 1n$。这在 $M$ 与 $n$ 有公共质因子的时候会导致处理方法变得复杂。
+
+\newpage
 
 \section{问题分析}
 
@@ -129,16 +211,16 @@ $$
 
 我们首先证明一个引理。
 
-\begin{Lem}[形式留数]
+\begin{lemma}[形式留数]
 对于幂级数 $F(x)$ 满足 $F(0)=0, F'(0)\neq0$，对于 $\forall k\in \mathbb Z$，有
 
 $$
 [x^{-1}]F'(x)F^k(x)=[k=-1]
 $$
 
-\end{Lem}
+\end{lemma}
 
-\textbf{证明}：考虑当 $k\neq -1$ 时，我们有 $F'(x)F^k(x)=(\frac 1{k+1} F(x)^{k+1})'$，而 $(x^0)'=0x^{-1}$，故 $-1$ 次项系数此时必然为 $0$。当 $k=-1$ 时设 $F(x) = a_1 x + a_2 x^2 + \cdots$，有
+\begin{proof} 考虑当 $k\neq -1$ 时，我们有 $F'(x)F^k(x)=(\frac 1{k+1} F(x)^{k+1})'$，而 $(x^0)'=0x^{-1}$，故 $-1$ 次项系数此时必然为 $0$。当 $k=-1$ 时设 $F(x) = a_1 x + a_2 x^2 + \cdots$，有
 
 \begin{align*}
 \frac{F'(x)}{F(x)} &= \frac{a_1 + 2a_2x + \cdots}{a_1 x + a_2 x^2 + \cdots}\\
@@ -146,6 +228,8 @@ $$
 \end{align*}
 
 因此 $k=-1$ 时 $-1$ 次项系数为 $1$。
+
+\end{proof}
 
 接下来我们考虑带入复合关系 $F(G(x))=x$，有
 
@@ -161,7 +245,7 @@ n[x^n] F^k &= k[x^{-k}]G^{-n}
 
 故原式得证。
 
-\subsubsection{拉格朗日反演的另类形式}
+\subsubsection{拉格朗日反演的另类形式}\label{lagr}
 
 我们在推导过程中，考虑第一步就不是求导，而是乘以 $G'G^{-n-1}$：
 
@@ -197,11 +281,13 @@ $$
 
 当 $M$ 为质数的时候，我们需要考虑一个极为重要的定理，它刻画了同余 $p$ 时多项式高阶幂的性质。
 
-\subsubsection{Lucas 定理}
+\begin{theorem}[Lucas]
+任取多项式 $f\in \mathbb F_p[x]$，有 $f(x)^p \equiv f(x^p) \pmod p$。
+\end{theorem}
 
-Lucas 定理指出，任取多项式 $f\in \mathbb F_p[x]$，有 $f(x)^p \equiv f(x^p) \pmod p$。
+\begin{proof}
 
-\textbf{证明}：首先我们考虑二项式系数 $\binom p k \bmod p$，根据质因子分解 $\binom pk = \frac{p!}{k!(p-k)!}$ 可知只有 $k=0$ 或 $p$ 时，该式子不含有质因子 $p$，因此 $\binom p k \bmod p$ 在 $k=0$ 或 $p$ 时取值为 $1$，否则为 $0$。
+首先我们考虑二项式系数 $\binom p k \bmod p$，根据质因子分解 $\binom pk = \frac{p!}{k!(p-k)!}$ 可知只有 $k=0$ 或 $p$ 时，该式子不含有质因子 $p$，因此 $\binom p k \bmod p$ 在 $k=0$ 或 $p$ 时取值为 $1$，否则为 $0$。
 
 接下来考虑归纳，设 $f(x)$ 的非 $0$ 项数为 $N$，设其为 $f(x)=g(x)+ax^k$，其中 $g(x)$ 的 $k$ 次项为 $0$，因此 $g(x)$ 的非 $0$ 项数为 $N-1$。由归纳假设，所有有 $N-1$ 个非 $0$ 项的多项式都满足 $g(x)^p\equiv g(x^p)\pmod p$，那么
 
@@ -211,7 +297,9 @@ $$
 
 根据归纳假设，命题得证。
 
-\subsubsection{类数位 DP 算法}
+\end{proof}
+
+\subsubsection{类数位 DP 算法}\label{dp}
 
 根据 Lucas 定理，我们可以设计一个类数位 DP 的算法。我们考虑一个稍微一般性的问题，即计算生成函数 $P(x)Q(x)^n$ 的 $m$ 次项系数（其中 $n$ 是整数）。我们设 $n=pn_1+r, m = pm_1 + s$，其中 $0\le r,s <p$，则发现有
 
@@ -229,7 +317,7 @@ $$
 &\equiv [x^{n_1}]R_s(x)Q(x)^{n_1}
 \end{align*}
 
-因此在这一过程中，我们的算法维护的就是 $(n,m,P(x))$ 到 $(n_1,m_1,R_s(x)=P_1(x))$ 的一个迭代。为了分析时间复杂度，接下来我们考察迭代过程中 $P$ 的次数，设 $\deg Q=K$，$\deg P = d$，那么由 $r\le p-1$ 可知，$\deg PQ^r \le d+K(p-1)$，进而得到 $\deg P_1 \le \frac{d + K(p-1)}p$。当初始条件有 $d<K$，可得 $\deg P_1 < \frac{K+K(p-1)}p = K$，因此根据循环不变式，在迭代过程中始终满足 $P$ 是不超过 $K$ 次多项式。
+因此在这一过程中，我们的算法维护的就是 $(n,m,P(x))$ 到 $(n_1,m_1,R_s(x)=P_1(x))$ 的一个迭代。为了分析时间复杂度，接下来我们考察迭代过程中 $P$ 的次数，设 $\deg Q=K$，$\deg P = d$，那么由 $r\le p-1$ 可知，$\deg PQ^r \le d+K(p-1)$，进而得到 $\deg P_1 \le \frac{d + K(p-1)}p$。当初始条件有 $d\leq K$，可得 $\deg P_1 \leq \frac{K+K(p-1)}p = K$，因此根据循环不变式，在迭代过程中始终满足 $P$ 是不超过 $K$ 次多项式。
 
 由定义可知，$m_1 = \left\lfloor\frac mp\right\rfloor$，而在 $m=0$ 时我们可知答案就是 $[x^0]P$，因此迭代只进行 $\log_p m$ 轮。迭代的每轮中我们需要计算 $P(x)Q(x)^r$，我们可以预处理所有的 $Q(x)^r$，然后计算 $P(x)Q(x)^r$ 中同余 $p$ 余 $s$ 的项。由于 $P$ 始终不超过 $K$ 次，我们计算的复杂度为 $\Theta(K^2)$。由于在本题中 $K,p$ 同阶，这种方法比调用多项式乘法的 $\Theta(\Mul(Kp))$ 复杂度还要优秀。
 
@@ -241,7 +329,7 @@ $$
 
 \subsubsection{同余 $p^k$ 时的多项式高阶幂性质}
 
-Lucas 定理已经指出了 $f(x)^p\equiv f(x^p) \pmod p$ 这个重要性质，那么对于 $\bmod p^k$ 呢？事实上我们会发现对于 $k\ge 1$，我们总是有
+Lucas 定理已经指出了 $f(x)^p\equiv f(x^p) \pmod p$ 这个重要性质，那么对于 $\bmod p^k$ 呢？事实上我们会发现对于 $k\ge 1$，我们总是有\label{pkpow}
 
 $$
 f(x)^{p^k} \equiv f(x^p)^{p^{k-1}} \pmod {p^k}
@@ -253,7 +341,7 @@ $$
 
 \begin{align*}
 f(x)^{p^{k+1}} &= \left(f(x^p)^{p^{k-1}} + p^k \vartheta(x)\right)^p\\
- &= f(x^p)^{p^k} + p \cdot p^k \vartheta(x) \cdot f(x^p)^{p^{k-1}(p-1)} + \sum_{j\ge 2}  p^{jk} \vartheta(x)^j f(x^p)^{p^{k-1}(p-j)}\binom p 2 \\
+ &= f(x^p)^{p^k} + p \cdot p^k \vartheta(x) \cdot f(x^p)^{p^{k-1}(p-1)} + \sum_{j\ge 2}  p^{jk} \vartheta(x)^j f(x^p)^{p^{k-1}(p-j)}\binom p j \\
  &= f(x^p)^{p^k} + p^{k+1} (\cdots) + p^{2k}\left(\sum \cdots\right)\\
  &\equiv f(x^p)^{p^k} \pmod {p^{k+1}}
 \end{align*}
@@ -262,9 +350,16 @@ f(x)^{p^{k+1}} &= \left(f(x^p)^{p^{k-1}} + p^k \vartheta(x)\right)^p\\
 
 因此我们设 $Q_0(x) = Q(x)^{p^{k-1}}$，那么就有 $Q_0(x)^p \equiv Q_0(x^p) \pmod {p^k}$，我们就可以令 $P_0(x)=P(x)Q(x)^{n\bmod p^{k-1}}$，使用原来的算法实施 $[x^m]P_0(x)Q_0(x)^{\lfloor n/p^{k-1} \rfloor}$ 的计算。
 
-现在的多项式次数为 $K_0 = Kp^{k-1}$，因此总共的时间复杂度是 $\Theta(p^{2k}K^2 + Tp^{2(k-1)}K^2 \log_p n)$。
+现在的多项式次数为 $K_0 = Kp^{k-1}$，因此总共的时间复杂度是 $\Theta(p^{2k}K^2 + Tp^{2(k-1)}K^2 \log_p n)$。但注意此时多项式次数为 $p^{k-1}K$ 而每次仍在 $p$ 进制下缩放，因此未必要像原来一样暴力进行多项式乘法，如借助 FFT，单次询问则可优化到 $\Theta(\Mul(p^k K)\log_p n)$。由于反复用到的幂仅有 $Q(x)^{p^{k-1}}$ 的 $0\sim p-1$ 次幂，我们仅对此预处理即可。那么总共的复杂度为 $\Theta(p\Mul(p^k K) + T\Mul(p^k K)\log_p n)$。
+
+\newpage
+
+\section{总结}
+
+\paragraph{拉格朗日反演} 在 2020 年的赛季里，拉格朗日反演先后在 Codeforces\footnote{CF1349F2 Slime and Sequences (Hard Version), \url{http://codeforces.com/problemset/problem/1349/F2}} 与 ZJOI\footnote{「ZJOI2020」抽卡，\url{https://loj.ac/p/3315}} 中接连出现，故而使得其计算上的用途得到进一步的普及。然而由于始终未有一个较为精炼的证明被公之于众，这导致选手对其使用范围以及变式不甚明确。前文中对于「另类拉格朗日反演」给出的 \ref{lagr} 这一推导途径并不唯一，不排除会有选手经过一些误打误撞的推导直接通过经典的形式得到这一形式。但通过追根溯源的证明，我们得以建立更加坚固的知识链条，这也是不无裨益的。这甚至也将启发我们对于多元拉格朗日反演形式的理解。
+
+\paragraph{小模数高阶幂} 在 ZJOI2017\footnote{「ZJOI2017」多项式，\url{https://loj.ac/p/2252}} 中，便已经出现探讨模 $2$ 情况下多项式幂的性质的题目。而 2019 年\footnote{「LibreOJ NOI Round \#2」简单算术，\url{https://loj.ac/p/577}}已经有探讨模质数情况下多项式幂的先例。而 \ref{pkpow} 中的结果则是在类似的形式上更进一步。本人认为，在本题中得到的结果看起来可能并不是最优的，若基于对 $\bmod p^k$ 运算更为深刻的理解，或许能够得到更加优秀的结果。囿于本人目前有限的数学知识储备，在本题命制时只能停顿于此。
+
+值得一提的是，本题中主要围绕的 \ref{dp} 这种「类数位 DP 算法」在形式上与今年被公之于众的一种新线性递推求值算法\footnote{A Simple and Fast Algorithm for Computing the $N$-th Term of a Linearly Recurrent Sequence, Alin Bostan, Ryuhei Mori, \url{https://arxiv.org/abs/2008.08822}}不谋而合。这种新算法考虑的实际上是本题中计算 $[x^n]P(x)Q(x)^{-1}$ 这一特例，其算法在实现难度以及实际效率上具有双重的优越性。
 
 \end{document}
-
-
-

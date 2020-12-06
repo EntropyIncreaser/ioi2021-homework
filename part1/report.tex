@@ -320,11 +320,11 @@ V_t &= q_r-q_l\nonumber\\
 
 于此同时，我们也可分析这一算法的渐进行为。注意到 \eqref{boundp} 和 \eqref{boundv} 这两组不等式均具有平移性质，即对于 $(t, j)$ 之间的不等式系数与 $(t+1,j+1)$ 之间的不等式系数是相同的，而涉及的变量相差一个平移。
 
-由此可知，若存在常数 $d, \alpha (\alpha < 1)$ 使得 $P_d \le \alpha \cdot P_0$ 且 $V_d \le \alpha \cdot V_0$，那么对所有 $t\ge d$ 均有 $P_t \le \alpha P_{t-d}$。进而有 $P_t \le \alpha^{\lfloor t/d\rfloor} P_0 \le \alpha^{\lfloor t/d\rfloor} N$。由此可导出在不超过 $d\log_{1/\alpha} N + O(1)$ 的时刻内即可确定位置，进而说明总共的询问次数为 $\Theta(\log N)$。
+由此可知，若存在常数 $d, \alpha (\alpha < 1)$ 使得 $P_d \le \alpha \cdot P_0$ 且 $V_d \le \alpha \cdot V_0$，那么对所有 $t\ge d$ 均有 $P_t \le \alpha P_{t-d}$。进而有 $P_t \le \alpha^{\lfloor t/d\rfloor} P_{t \bmod d} \le \alpha^{\lfloor t/d\rfloor} N$。由此可导出在不超过 $d(\log_{1/\alpha} N + O(1))$ 的时刻内即可确定位置，进而说明总共的询问次数为 $\Theta(\log N)$。
 
-经计算发现，取 $d=5$ 时，$\alpha \approx 0.88$ 满足条件。由此可知上述算法的询问此时为 $\Theta(\log \max (p, v))$，而由于中途还有一层枚举，所以程序执行的复杂度为 $\Theta(\log^2 \max(p, v))$。
+经计算发现，取 $d=5$ 时，$\alpha \approx 0.88$ 满足条件。由此可知上述算法的询问此时为 $O(\log \max (p, v))$，而由于中途还有一层枚举，所以程序执行的复杂度为 $O(\log^2 \max(p, v))$。
 
-此外，注意到本题的答案空间有 $(p+1)\cdot (v+1)$ 种，而询问的结果只有 $2$ 种，因此从信息熵的角度可知，最优的询问策略在最坏情况下也至少需要 $\log_2 ((p+1)\cdot (v+1)) = \Theta (\log \max (p, v))$ 次询问。从这方面考虑，本算法的询问复杂度已经达到最优。
+此外，注意到本题的答案空间有 $(p+1)\cdot (v+1)$ 种，而询问的结果只有 $2$ 种，因此从信息熵的角度可知，最优的询问策略在最坏情况下也至少需要 $\log_2 ((p+1)\cdot (v+1)) = O (\log \max (p, v))$ 次询问。从这方面考虑，在 $p,v$ 同阶时，本算法的询问复杂度已经达到最优。
 
 \newpage
 
