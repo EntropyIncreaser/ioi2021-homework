@@ -1,0 +1,435 @@
+
+% XeLaTeX can use any Mac OS X font. See the setromanfont command below.
+% Input to XeLaTeX is full Unicode, so Unicode characters can be typed directly into the source.
+
+% The next lines tell TeXShop to typeset with xelatex, and to open and save the source with Unicode encoding.
+
+%!TEX TS-program = xelatex
+%!TEX encoding = UTF-8 Unicode
+
+\documentclass[12pt]{ctexart}
+\usepackage{geometry}                % See geometry.pdf to learn the layout options. There are lots.
+\geometry{a4paper}                   % ... or a4paper or a5paper or ... 
+%\geometry{landscape}                % Activate for for rotated page geometry
+%\usepackage[parfill]{parskip}    % Activate to begin paragraphs with an empty line rather than an indent
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{tabularx}
+\usepackage{amsmath}
+\usepackage{mathrsfs}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{hyperref}
+\usepackage{amsthm}
+\usepackage{titlesec}
+\usepackage{tcolorbox}
+\usepackage{fancyhdr}
+\usepackage{multirow}
+\usepackage{longtable}
+
+\tcbuselibrary{skins, breakable, theorems}
+
+% Will Robertson's fontspec.sty can be used to simplify font choices.
+% To experiment, open /Applications/Font Book to examine the fonts provided on Mac OS X,
+% and change "Hoefler Text" to any of these choices.
+
+\usepackage{fontspec,xltxtra,xunicode}
+
+\providecommand*{\unit}[1]{\ensuremath{\mathrm{\,#1}}}
+\newcommand{\di}{\ensuremath{\mathrm{\,d}}}
+\newcommand{\Mul}{\ensuremath{\mathsf M}}
+
+
+% \setsansfont{TeX Gyre Heros}
+
+\newfontfamily\sfsf{TeX Gyre Heros}
+
+\setCJKmainfont[BoldFont=Noto Serif CJK SC Black]{Noto Serif CJK SC}
+\setCJKsansfont[BoldFont=Noto Sans CJK SC Black]{Noto Sans CJK SC}
+
+\setCJKfamilyfont{emfont}[
+	BoldFont=PingFangSC-Medium
+]{PingFangSC-Regular}
+\renewcommand{\em}{\bfseries\sffamily\CJKfamily{emfont}} % 强调
+
+% \CTEXsetup[format={\large\bfseries}]{section}
+
+\titleformat{\section}
+{\centering\sffamily\Large\bfseries}{\sfsf{{\thesection}}}{1em}{}
+
+\titleformat{\subsection}
+{\sffamily\large\bfseries}{\sfsf{{\thesubsection}}}{1em}{}
+
+\titleformat{\subsubsection}
+{\sffamily\bfseries}{\sfsf{{\thesubsubsection}}}{1em}{}
+
+
+\hypersetup{colorlinks = true,
+			linkcolor = blue,
+			citecolor = red,
+			urlcolor = teal}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[C]{\leftmark}
+\fancyfoot[C]{\thepage}
+
+\linespread{1.5}
+\zihao{4}
+
+\theoremstyle{theorem}
+\newtheorem{lemma}{\bfseries\textsf {引理}}
+
+\theoremstyle{theorem}
+\newtheorem{theorem}{\bfseries\textsf {定理}}
+
+\title{\textbf{IOI 2021 集训队自选题数数部分考察报告}}
+\author{\textbf{Elegia}}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+
+\newpage
+
+\section{monster}
+
+\paragraph{简要题意} 有正整数 $k$ 以及 $a_i, p_i$，每回合按 $1\sim k$ 的顺序检查 $1\sim k$，每次 $a_i$ 有 $p_i$ 的概率减少 $1$，求 $a_1$ 最先减到 $0$ 的概率。
+
+同余 $998244353$，保证 $k\le 5, S=\sum a_i \le 5\times 10^6$，且 $p_i$ 随机生成。
+
+\paragraph{解法}
+
+我们不妨直接将答案写作一个无穷和式，不妨设游戏刚好在第 $n+1$ 个回合结束，那么依此求和就有
+
+$$
+\sum_{n\ge 0} \binom n{a_i-1} p_1^{a_1} (1-p_1)^{n+1-a_1} \prod_{i=2}^k
+\left[\sum_{j=0}^{a_i-1} \binom n j p_i^j(1-p_i)^{n-j}\right]
+$$
+
+这个和式有一个很重要的观察，它本质上是形如 $\sum_{n\ge 0} f(n) q^n$ 的形式，其中 $f$ 是一个 $d=S - k$ 次多项式，而 $q = \prod (1-p_i)$。
+
+但首先我们要确认关于 $f$ 的信息中何者比较好求。事实上我们发现 $f$ 的点值最为好求，我们只需先按照原式的定义进行计算，最后的 $\prod$ 项关于 $n$ 有一个简单的递推关系，这就导出了前 $S$ 项点值的一个 $\Theta(kS)$ 算法。
+
+为了得到最优的复杂度，我们需要考虑基于点值的推导，考虑变换为二项式，即存在系数 $g_i$ 满足
+
+$$
+f(n) = \sum_{i=0}^{d} g_i \binom n i
+$$
+
+那么我们首先需要考虑对于任何一个 $i$，单纯的 $\binom n i$ 的答案，这是实际上就是负二项式：
+
+$$
+\sum_{n\ge 0} \binom n i q^n = \frac{q^i}{(1-q)^{i+1}}
+$$
+
+而点值和二项式之间还相差一个反演
+
+$$
+g_i = \sum_j \binom i j (-1)^{i-j} f(j)
+$$
+
+我们欲求出对于 $0\le n\le d$ 的每个 $n$，我们求出的点值 $f(n)$ 需要点乘的系数，也即
+
+\begin{align*}
+&\quad \sum_{i=n}^{d}\binom i n (-1)^{i-n} \frac{q^i}{(1-q)^{i+1}}\\
+&= \frac 1{1-q}\sum_{i=n}^{d}\binom i n (-1)^{i-n} t^i, \qquad t=\frac q{1-q}\\
+&= \frac 1{1-q}\sum_{i=n}^{d} [x^n] q^i(x-1)^i\\
+&= \frac 1{1-q}[x^n] \frac{[q(x-1)]^{d+1}-1}{q(x-1)-1}
+\end{align*}
+
+由此，这一和式可以直接通过多项式的除法解决，这一部分复杂度为 $\Theta(S)$。
+
+综上，我们就得到了一个 $\Theta(kS)$ 的算法。
+
+\paragraph{点评} 在考虑复杂度的时候，我们常常需要考虑以下几类信息的转化：连续点值、下降幂系数、多项式系数、插值点值……其中，在只求一个答案的时候问题尤为特殊，因为这时基于的一个转换可能类似于计算 $\mathbf {uM}\mathbf v^{\mathsf T}$，先计算何者就有可能影响复杂度了。
+
+\newpage
+
+\section{Game on Tree}
+
+\paragraph{简要题意}
+
+一颗二叉树，划分成 $A,B,L$ 三部分，其中 $L$ 为叶节点，其余点均有两个孩子。每个叶节点有 $c,d$ 值，一组策略为给每个点选择一个重子，称双方的收益为从根沿重子走到的对应 $c,d$ 值。称一个策略\emph{纳什均衡}当且仅当任取 $A$ 中策略改变均不使得 $c$ 更大，任取 $B$ 中策略改变均不使 $d$ 更大。对所有 $\forall u\in L,1\le c_u,d_u\le k$ 的情况，对纳什均衡的策略数求和。对每个节点的子树求出答案。
+
+同余 $p$。保证 $n\le 5000, k,p\le 10^9$。
+
+\paragraph{解法}
+
+首先一个简单的想法是考虑一个朴素的 DP，$F_u(i, j)$ 表示 $u$ 所在的子树达到纳什均衡，其中 $A$ 的最优策略达到了 $i$，$B$ 的最优策略达到了 $j$。我们来先看一下假设 $u\in A$ 的情况。其 $u\in B$ 的转移是完全对称的：
+
+设两子为 $l, r$。若以 $l$ 为重子，注意此时 $l$ 的子树维持纳什均衡，但 $r$ 的子树只需保证修改 $A$ 可达的最大值 $\le i$。我们记 $X_r(i)$ 表示最大值 $\le i$ 的情况。那么就有
+
+$$
+F_u(i,j) \leftarrow F_l(i,j) \cdot X_r(i)
+$$
+
+对称地，我们可得此时有
+
+$$
+F_u(i,j) = F_l(i,j) \cdot X_r(i) + F_r(i,j) \cdot X_l(i)
+$$
+
+而此时的 $X,Y$ 呢？对于本层的 $X$，两个子树均能取到，故有
+
+$$
+X_u(i) = 2X_l(i)\cdot X_r(i)
+$$
+
+而对于 $Y$（$B$ 的最优化）来说，这被 $A$ 完全摆布，另一子树的细节就没用了，所以是
+
+$$
+Y_u(i) = Y_l(i) \cdot 2^{|A_r|+|B_r|}k^{2|L_r|} + Y_r(i) \cdot 2^{|A_l|+|B_l|}k^{2|L_l|}
+$$
+
+不难看出 $X,Y$ 是多项式，但 $F$ 是个二元多项式。然而经过归纳，我们发现 $F$ 的两元是实质上独立的！我们考虑归纳，若
+
+$$
+F_u = U_u \cdot V_u
+$$
+
+有良定义的关系
+
+$$
+\begin{aligned}
+X_u(i) &= 2^{|A_u|} k^{|L_u|} U_u(i)\cdot i\\
+Y_u(i) &= 2^{|B_u|} k^{|L_u|} V_u(i)\cdot i
+\end{aligned}
+$$
+
+我们进行归纳。在叶节点处，令 $U_u(i)=V_u(i)=1$ 即可。还是考虑 $A$ 位置。
+
+$$
+\begin{aligned}
+F_u(i,j) &= F_l(i,j) \cdot X_r(i) + F_r(i,j) \cdot X_l(i)\\
+&= U_l(i,j)V_l(i,j)U_r(i,j)i 2^{|A_r|} k^{|L_r|} +U_r(i,j)V_r(i,j)U_l(i,j)i 2^{|A_l|} k^{|L_l|}\\
+U_u(i,j)V_u(i,j)&= U_l(i,j)U_r(i,j) i\left( V_l(i,j) 2^{|A_r|} k^{|L_r|}+ V_r(i,j) 2^{|A_l|} k^{|L_l|} \right)\\
+U_u(i,j)&=U_l(i,j)U_r(i,j) i\\
+V_v(i,j)&=V_l(i,j) 2^{|A_r|} k^{|L_r|}+ V_r(i,j) 2^{|A_l|} k^{|L_l|}\\
+X_u(i)&=2 X_l(i)\cdot X_r(i)\\
+&=2 \left(2^{|A_l|} k^{|L_l|} U_l(i)\cdot i\right) \left(2^{|A_r|} k^{|L_r|} U_r(i)\cdot i\right)\\
+&=2^{|A_u|}k^{|L_u|} U_l(i)U_r(i)i^2\\
+&=2^{|A_u|}k^{|L_u|} U_u(i)\cdot i\\
+Y_u(i)&= Y_l(i) \cdot 2^{|A_r|+|B_r|}k^{2|L_r|} + Y_r(i) \cdot 2^{|A_l|+|B_l|}k^{2|L_l|}\\
+&= \left( V_l(i) \cdot 2^{|A_r|}k^{|L_r|} + V_r(i) \cdot 2^{|A_l|}k^{|L_l|} \right)\cdot 2^{|B_l|+|B_r|} k^{|L_u|}\\
+&= Y_l(i) \cdot 2^{|A_r|}k^{|L_r|} + Y_r(i) \cdot 2^{|A_l|}k^{|L_l|} 
+\end{aligned}
+$$
+
+故归纳成立，因此我们只需维护 $U,V$ 即可。
+
+我们只需维护 $0\sim n$ 位置的点值，然后通过插值即可得到 $k$ 位置的结果。
+
+综上，本题在 $\Theta(n^2)$ 复杂度内得到解决。
+
+\paragraph{拓展} 求某一棵树答案的时候，注意到这一关系是两个孩子的乘法或线性组合，我们可以对表达式树通过分治在 $\Theta(n\log ^2 n)$ 内完成计算。然后藉由伯努利数即可在 $\Theta(n\log n)$ 内求出答案。
+
+进一步地，我们通过转置原理，可以先 $\Theta(n\log n)$ 预处理每个 $x^j$ 的前缀和，从而在 $\Theta(n\log^2n)$ 内求出所有点的答案。
+
+\paragraph{点评} 其独立性似乎有一些组合意义上的理解，但在代数形式上似乎没有那么显然。
+
+\newpage
+
+\section{小 Y 的序列}
+
+\paragraph{简要题意}
+
+给出正整数 $n, w$，对于每个 $1\le k\le n$，求出
+
+$$
+\sum_{\{1\le a_i\le w\}_{i=1}^n} \# \left\{
+i \middle \vert \exists i_1<i_2<\dots <i_k, a_{i_j} < a_i
+\right \}
+$$
+
+同余 $998244353$，保证 $1\le n\le 114514, 1\le w\le 114514191$。
+
+\paragraph{解法}
+
+首先考察题设的 $\exists$ 条件，我们不如先数出最大的 $k$，然后做一个后缀和即可。
+
+先转成随机生成然后数期望，我们接下来分别考虑答案的 GF，当 $a_{i+1}=j+1$ 的时候，前面每个数有 $\frac jw$ 的概率给 $k$ 加一。
+
+\begin{align*}
+&\quad \frac 1w\sum_{i=0}^{n-1} \sum_{j=0}^{w-1} \left(\frac {w-j}w + \frac jw x\right)^i\\
+&= \frac 1w\sum_{i=0}^{n-1} \sum_{j=0}^{w-1} \left(1 - \frac jw + \frac jw x\right)^i\\
+&= \left[\frac 1w\sum_{i=0}^{n-1} \left(1 - t + t x\right)^i\right] \cdot \left\{ t^k \rightarrow \sum_{j=0}^{w-1} \left(\frac j w\right)^k \right\}\\
+&= \left[\frac 1w \cdot \frac{1 - \left(1 - t + t x\right)^n}{1 -  \left(1 - t + t x\right)} \right] \cdot \left\{ t^k \rightarrow \sum_{j=0}^{w-1} \left(\frac j w\right)^k \right\}\\
+&= \left[\frac 1w \cdot \frac{1 - \left(1 - t + t x\right)^n}{t(1-x)} \right] \cdot \left\{ t^k \rightarrow \sum_{j=0}^{w-1} \left(\frac j w\right)^k \right\}\\
+&= \frac 1{w(1-x)} \cdot \left[\frac{1 - \left(1 - t + t x\right)^n}{t} \right] \cdot \left\{ t^k \rightarrow \sum_{j=0}^{w-1} \left(\frac j w\right)^k \right\}\\
+&= \frac 1{w(1-x)} \cdot \left[\frac{1 - \left(1 - t\right)^n}{t} - \sum_{j=1}^n \binom n j (1-t)^{n-j}t^{j-1} x^j \right] \cdot \left\{ t^k \rightarrow \sum_{j=0}^{w-1} \left(\frac j w\right)^k \right\}
+\end{align*}
+
+其中，可以先通过伯努利数将 $\{\cdot \}$ 部分的所有求和结果算出。接着 $[ \cdot ]$ 无非是考虑 $(1-t)^{n-j}t^{j-1}$，这无非还是一次转置原理的简单应用。
+
+综上，本题在 $\Theta(n\log n)$ 时间内得到解决。
+
+\paragraph{点评} 若使用上文演示的哑元推导，这道题还是没有什么特别的难点可言的。
+
+\newpage
+
+\section{tree \& prime}
+
+\paragraph{简要题意}
+
+一颗 $n$ 个节点的树，每个节点 $i$ 经过时有 $p_i$ 的概率得到一枚金币。对每个节点 $i$，问有多大的概率从 $1$ 号点走到其时，得到的金币数量为素数。
+
+同余 $998244353$，保证 $1\le 10^5$。
+
+\paragraph{解法}
+
+素数的条件看起来就是比较一般的，我们首先将问题一般化为给定数列 $a_i$，总共有 $i$ 个金币时得到 $a_i$ 的权值，问每个点处权值的期望。如此一来问题就是找到一个高效算法计算
+
+$$
+\mathbf v = \mathbf {Ma}
+$$
+
+我们不妨考虑这个问题的$\displaystyle{\text{\emph{转}} \atop \text{\emph{置}}}$，即先考虑给定一个 $\mathbf v$，如何计算
+
+$$
+\mathbf a = \mathbf M^{\mathsf T} \mathbf v
+$$
+
+我们考虑其意义，这相当于有 $v_i$ 的概率以 $i$ 节点为终点，然后 $a_i$ 为最终获得 $i$ 个金币的概率。用多项式乘法来刻画就有
+
+$$
+f_i(x) = (1-p_i + p_ix) \left(v_i + \sum_{(i,j)\in T} f_j(x)\right)
+$$
+
+最终的 $\mathbf a$ 就是 $f_1(x)$ 的系数向量。注意到过程中多项式的次数就是子树的高度，我们可以在长链剖分上进行分治。即在过程中维护积与和 $p, s$，有
+
+\begin{align*}
+p_o & \leftarrow p_l \cdot p_r\\
+s_o & \leftarrow s_l \cdot p_r + s_r
+\end{align*}
+
+在递归的尾部，需注意 $s$ 要加上辅树的所有结果。本算法的复杂度为 $\Theta(n\log ^2n)$。接着我们将算法转置回去，就只需倒写过程，变为
+
+\begin{align*}
+s_r & \leftarrow \mathbf{MUL}(p_r)^{\mathsf T} s_o \\
+s_l & \leftarrow s_o
+\end{align*}
+
+并且递归到叶子后还需将答案贡献给辅树的子问题。需注意过程中保留的多项式次数由转置前算法的每一步次数确定。复杂度为 $\Theta(n\log ^2n)$。
+
+\paragraph{点评} 转置原理的朴素应用。
+
+\newpage
+
+\section{Yet Another Permutation Problem}
+
+\paragraph{简要题意}
+
+问对于所有长为 $n$ 的排列，有多少排列存在一个连续上升段 $\ge k$。对所有 $k$ 回答，对输入的大质数取模。
+
+保证 $1\le n\le 1000, 10^8\le M\le 10^9+9$。
+
+\paragraph{解法}
+
+首先经过转化，只需要数所有连续段均 $<k$ 的即可。容易想到容斥，我们可以先假设有一些基本单位，然后容斥掉它们拼起来的情况，可得基本单位是 $\frac{x-x^k}{1-x}$，其容斥单位为
+
+$$
+\begin{aligned}
+&\quad 1-\frac 1{1+\frac{x-x^k}{1-x}}\\
+&= 1-\frac{1-x}{1-x^k}\\
+&= \frac{x-x^k}{1-x^k}\\
+&= \sum_{j\ge 0} \left(x^{jk+1} - x^{(j+1)k}\right)
+\end{aligned}
+$$
+
+而排列实际的拼接是 EGF 的形式，因此答案为
+
+$$
+n![x^n] \frac 1{\displaystyle1 - \sum_{j\ge 0} \left( \frac{x^{jk+1}}{(jk+1)!}  - \frac{x^{(j+1)k}}{[(j+1)k]!}\right)}
+$$
+
+由于下面的项数有 $\Theta(n/k)$ 项，因此暴力求逆的复杂度为 $\Theta(n^2/k)$，求所有的答案是 $\Theta(n^2\log n)$。
+
+\paragraph{越过数据范围}
+
+注意到我们实际上有两个算法，一个算法是 $\Theta(n\log n)$ 的求逆，一个算法是 $\Theta(n^2/k)$ 的暴力求逆。那么我们显然应该选择当前最快的算法来跑。对于 $k\le \frac n{\log n}$ 的时候是 $\Theta(n\log n)$ 更快一点，所以对于前 $\frac n{\log n}$ 项，总共复杂度为 $\Theta(n^2)$。而对于后面的来说，根据调和级数更加精确的分析：$H_n = \ln n + \gamma + O(1/n)$，因此从 $\frac n{\log n}$ 到 $n$ 求和，大约是 $\log n - \log(n/\log n) = \log\log n$，因此将这两个算法混在一起使用，复杂度就降到了 $\Theta(n^2\log\log n)$。
+
+\paragraph{越过 $\Omega(n^2)$}
+
+这个问题的 $\Omega(n^2)$ 的 bound，是不可突破的吗？
+
+我们刚刚实际上不仅求出了 $k=1\sim n$，还求出了更小的 $n$ 的所有答案。但实际上我们并没有必要这么做。现在我们不妨假设有一个算法，他能在 $\Theta((n/k)^c)$ 的复杂度内计算一个 $k$ 对应的答案。容易发现在任何 $k$ 的位置，$\Theta(n^2/k)$ 的算法都是不占优的，因为若 $k>\frac n{\log n}$，那么 $(n/k)^c < (\log n)^c \ll n < n^2/k$。因此我们只需在 $k\le n^{1-1/c}(\log n)^{-1/c}$ 的部分使用 $\Theta(n\log n)$ 的算法，剩下的部分使用 $\Theta((n/k)^c)$ 的算法。估界有
+
+$$
+\begin{aligned}
+&\quad \sum_{k>L} \left(\frac nk\right)^c\\
+&< \int_L^\infty n^cx^{-c} \,\mathrm dx\\
+&= \left.\frac 1{1-c}n^c x^{1-c}\right|_{x=L}^\infty\\
+&= \frac 1{c-1}n^cL^{1-c},\quad L=n^{1-1/c}(\log n)^{-1/c}\\
+&= \frac 1{c-1} n^{2-1/c}(\log n)^{1-1/c}
+\end{aligned}
+$$
+
+此时，复杂度两部分均是 $\Theta(n^{2-1/c}(\log n)^{1-1/c})$。
+
+回顾我们要求的，无非是
+
+$$
+n![x^n] \frac 1{1-x-x^{k+1}A(x^k)-x^kB(x^k)}
+$$
+
+经过这样的改写，我们不难考虑枚举三个部分的次数，显然这等价于如此求和：
+
+$$
+\sum_{u,v,w\ge 0} \binom{u+v+w}{u,v,w} U^uV^vW^w 
+$$
+
+而我们提取系数 $[x^n]$，这就固定了 $x$ 项的次数，也就有
+
+$$
+\begin{aligned}
+&\quad [x^n] \frac 1{1-x-x^{k+1}A(x^k)-x^kB(x^k)}\\
+&= [x^n]\sum_{u,v,w\ge 0} \binom{u+v+w}{u,v,w}x^{u(k+1)+vk+w}A(x^k)^uB(x^k)^v\\
+&= [x^n]\sum_{u,v,w\ge 0} \binom{u+v+w}{u,v,w} [x^{n-u(k+1)-vk-w}] A(x^k)^uB(x^k)^v
+\end{aligned}
+$$
+
+此时 $A(x^k)^uB(x^k)^u$ 只有 $k$ 的倍数次才有值，因此维护和求值都是只关于 $n/k$ 的。
+
+如使用暴力卷积，那么复杂度为 $\Theta((n/k)^4)$，总复杂度是 $\Theta(n^{7/4}(\log n)^{3/4})$。
+
+如这里使用 FFT，那么复杂度为 $\Theta((n/k)^3\log (n/k))$，总复杂度是 $\Theta(n^{5/3}\log n)$。
+
+\paragraph{点评} 这个问题可能还有一条路，熟悉者可能会认为有一定前途，那就是用 DFT（单位根反演）将分母表为 $\mathrm{e}^{\omega x}$ 之和。但经验上说，诸如 $\tan x, \frac x{\mathrm e^x-1}$ 之类的多项式均未有优于多项式求逆的方法，因此这条思路究竟能带来什么不同的做法还有待考量。
+
+\newpage
+
+\section{Communication Network}
+
+\paragraph{简要题意}
+
+给一颗 $n$ 个节点的树 $T_1$，要求枚举 $n^{n-2}$ 种树，求和
+
+$$
+\sum_{T_2} |T_1 \cap T_2|2^{|T_1 \cap T_2|}
+$$
+
+同余 $998244353$，保证 $1\le n\le 2\times 10^6$。
+
+\paragraph{解法}
+
+设 $t=2x+2$，这道题无非求算
+
+$$
+[x^1] \sum_{T_2} t^{|T_1 \cap T_2|}
+$$
+
+考虑一个经典的 Pr\"ufer 序列结果，连通块大小分别为 $a_1,\dots,a_k$ 的图连成树的方案数是
+
+$$
+n^{k-2}\prod_{i=1}^k a_i
+$$
+
+其中的乘积项可以认为是 $[y^1](1+y)^{a_i}$，因此我们可以通过树形 DP 进行容斥来计算。注意到因为我们只求 $[x^1]$，所以可以 $\bmod x^2$，故 DP 过程维护的信息量皆为常数。复杂度为 $\Theta(n)$。
+
+\paragraph{点评} 约等于「WC2019 数树」的一个子任务。
+
+\end{document}
