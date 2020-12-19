@@ -1,0 +1,289 @@
+\newcommand{\di}{\ensuremath{\mathrm{\,d}}}
+\newcommand{\Mul}{\ensuremath{\mathsf M}}
+\newcommand{\A}{\ensuremath{\mathbb A}}
+\newcommand{\R}{\ensuremath{\mathsf R}}
+\newcommand{\IZ}{\ensuremath{{I \backslash \{0\}}}}
+
+\newcommand\DOI[1]{doi: \href{http://dx.doi.org/#1}{\texttt{#1}}}
+
+\begin{abstract}
+生成函数近年来在信息学竞赛的组合计数问题中扮演着越发重要的角色。其用途在问题处理时的公式推导，以及代码实现中的学问均已越发普及。本文旨在给出一套生成函数在信息学竞赛实战中处理问题的方法框架，同时梳理一些其中的重要算法。
+\end{abstract}
+
+\section{概述}
+
+当我们得到一个组合计数问题相关的生成函数解后，其代数形式到答案计算的算法的转化过程仍有若干壁垒。究其原因，我们在进行计算时常常受到以下几个复杂对象的制约。
+
+\subsection{复合}
+
+相对于卷积，我们在形式幂级数问题上没有非常高效的处理一般复合问题的方法。多项式模复合问题在 OI 中已经被引入的复杂度最优的算法为 $\Theta((n\log n)^{3/2})$，且该算法具有较大的常数，在实战中往往 $\Theta(n^2)$ 次运算的一种“分块 FFT”算法具有更好的表现。值得一提的是，该问题在理论界已有 $O(n^{1+o(1)})$ 的算法\footnote{Fast Polynomial Factorization and Modular Composition, 2011, Kiran S. Kedlaya, Christopher Umans, \DOI{10.1137/08073408x}}，但尚不清楚在实现上是否优越。
+
+\subsection{生成函数方程}
+
+\subsection{远处系数求值}
+
+远处系数求值意谓在提取第 $n$ 次项系数时，往往 $\Omega(n)$ 的计算量都是不被允许的。而能在 $o(n)$ 时间内完成计算的问题要求确实比较苛刻，但目前仍有一些可探讨的空间。目前较为成熟的两类远处系数求值是\emph{线性递推数列}和\emph{整式递推数列}。
+
+\begin{theorem}给定数列 $a_n$ 的 $0\sim k-1$ 项和定义在其上的线性递推式 $b_1,\dots, b_k$，满足
+
+$$ a_n = \sum_{j=1}^k a_{n-j} b_j $$
+
+存在算法在 $\Theta(k\log k\log n)$ 时间内计算 $a_n$。
+\end{theorem}
+
+现在较为普及的线性递推算法由 Fiduccia 于 1985 年提出，并不具有较好的常数。后文将介绍一种算法上更为简单，且具有较好常数的线性递推算法。
+
+\begin{theorem}给定数列 $a_n$ 的 $0\sim m-1$ 项和定义在其上的整式递推式 $P_0,\dots,P_m$，满足
+
+$$ a_n = -\frac1{P_0(n)}\sum_{j=1}^m a_{n-j}P_j(n) $$
+
+存在算法在 $\Theta \left(\sqrt{nd}\left(m^3+m^2\log(nd)\right)\right)$ 时间内计算 $a_n$。
+\end{theorem}
+
+\section{算法的评定}
+
+\subsection{系数}
+
+在信息学竞赛的组合计数问题中，由于问题常常要求输出对某个数取模的结果，而这一计算方式往往会影响算法的使用。其对计算复杂程度的影响大致可分为以下四级。
+
+\begin{center}
+\begin{tikzcd}[row sep=tiny, column sep=small]
+			\mathbb F_{\mathsf{NTT}} \arrow[phantom, r, "\subset" description] & \mathbb F_p \arrow[phantom, r, "\subset" description] & \mathrm{GF}(p^k) \arrow[phantom, r, "\subset" description] & \mathsf{Commutative\ Rings} \\
+			\text{NTT 模数域} & \text{素数域} & \text{有限域} & \text{交换环}
+\end{tikzcd}
+\end{center}
+
+\begin{asparadesc}
+\item [NTT 模数域] 设取模的素数 $p$ 满足 $p= m\times 2^k+1$，当 $k$ 较大时，由于 $2^k$ 次单位根的存在，快速数论变换可以在 $\Theta(n\log n)$ 时间内进行长度为 $2$ 的幂，且最长为 $2^k$ 的数论意义下 DFT 结果。由此即可对于 $n\le 2^k$，在 $\Theta(n\log n)$ 的时间内完成两个 $n$ 次多项式的乘法。由于其 DFT 的存在，在这种模数下的算法往往有很大的，根据 DFT 中间结果进行针对性常数优化的空间。
+
+\begin{itemize}
+\item \emph{模 $998244353$}：NTT 模数中最为著名的非 $\mathbb F_{998244353}$ 莫属，有 $998244353 = 119\times 2^{23} + 1$。
+\end{itemize}
+
+\item [素数域] 在同余一个素数时，
+
+\item [有限域] 有限域是
+
+\begin{itemize}
+\item \emph{Nimber}：Nimber 是一种可以较为高效计算的有限域，其出现时往往为 $\mathrm{GF}(2^{32})$ 或 $\mathrm{GF}(2^{64})$，与计算机的无符号整数 \texttt{uint32} 与 \texttt{uint64} 交相呼应。
+\item \emph{二次扩域}：题目中较为常见的是二次扩域，实际上就是对于模 $p$ 下的二次非剩余 $r$，模拟 $a + b\sqrt r$ 的运算。这实际上就等价于 $\mathbb F_p[x]/(x^2-r)$，由 $r$ 是二次非剩余可知 $x^2-r$ 是不可约多项式，故前式是域。
+\end{itemize}
+
+\item [交换环] 交换环
+
+\begin{itemize}
+\item \emph{模 $n$ 运算}：$\mathbb Z/n\mathbb Z$ 在 $n$ 是合数时不构成域。
+\item \emph{多项式}：
+\end{itemize}
+
+\item [杂项] 还有部分性质极差的运算，它们并非本文想要讨论的重点，仅简单提及。
+
+\begin{itemize}
+\item \emph{矩阵环}：矩阵的乘法是信息学竞赛中最常见的非交换运算。由于其非交换性，在诸如生成函数乘法逆的计算时需要注意运算顺序，而诸如生成函数 $\exp$ 等运算并不具有很好的性质，尚未有复杂度优秀的算法。
+\item \emph{最值与最值计数}：最值与最值计数仅构成交换半环，由于目前 max-plus 卷积尚未有 $O(n^{2-\epsilon})$ 的算法，限于其算术性质与本文相离太远，故仅在此提及。
+\end{itemize}
+
+\end{asparadesc}
+
+在接下来的表述中，我们默认计算时的系数至少为交换环，记为 $\A$。
+
+\subsection{序列变换}
+
+\subsubsection{卷积}
+
+\begin{definition} [卷积下标系统]
+我们称满足以下几条性质的集合 $I$ 以及定义在其上的运算 $\circ$ 构成下文要讨论的\emph{卷积下标系统}：
+\begin{itemize}
+\item \emph{结合律}：即 $\forall i,j,k\in I$，有 $(i\circ j)\circ k = i\circ(j\circ k)$。
+\item \emph{交换律}：对于 $\forall i,j\in I$，有 $i\circ j = j\circ i$。
+\item \emph{单位元}：存在元素 $1 \in I$，对于 $\forall i\in I$，有 $1\circ i = i$。
+\item \emph{零元}：存在元素 $0\in I$，对于 $\forall i\in I$，有 $0\circ i = 0$。
+\item \emph{后效律}：对于 $\forall i,j\in I\backslash \{0,1\}$，有 $i\circ j \neq i$。
+\end{itemize}
+下文中如有歧义时则用 $0_I, 1_I$ 表示 $0,1$。在讨论卷积下标系统时，默认以 $I$ 表示 $(I, \circ)$。
+\end{definition}
+
+\begin{definition} [生成函数]
+对于以卷积下标系统 $I$ 为下标的序列 $\{f_i \in \A\}_{i\in \IZ}$，我们定义其生成函数 $F(X) = \sum_{i\in I} f_i X^i$，我们记 $X$ 为“未定元”，满足：
+
+\begin{itemize}
+\item 对 $\forall a\in \A, i\in I$，有 $aX^i = X^i a$。
+\item 对 $\forall i,j\in I$，有 $X^i \cdot X^j = X^{i\circ j}$。
+\item \emph{消去律}：$X^{0_I} = 0_{\A}$，即 $X^{0_I}$ 作为生成函数对应的序列为 $\{f_i = 0_{\A}\}_{i\in \IZ}$。
+\item $X^{1_I} = 1_{\A}$。
+\end{itemize}
+
+\end{definition}
+
+容易看出，前文所定义的\emph{零元}刻画了在计算时溢出的部分。
+
+我们所选取的生成函数进行乘法时，未定元指标的运算自然地导出了对应系数序列的卷积。
+
+\begin{definition} [卷积]
+对于以卷积下标系统 $I$ 为下标，以 $\A$ 为系数的序列，我们定义其卷积 $c = a * b$：
+
+$$
+c_k = \sum_{i\circ j = k} a_i b_j
+$$
+\end{definition}
+
+\subsubsection{在线算法与解方程}
+
+通过前文的铺垫，我们接下来叙述一个静态的算法与其\emph{在线}形式的关联，以及如何一般地用于方程求解。
+
+\begin{definition} [后效序]
+定义 $I$ 上的序关系 $\preceq$：$i\preceq j$ 当且仅当存在 $k \in I$，使得 $i \circ k = j$。我们称这一序关系为\emph{后效序}。
+\end{definition}
+
+\begin{lemma}
+$I$ 上的后效序构成偏序。且以 $1$ 为最小元，以 $0$ 为最大元。
+\end{lemma}
+
+读者不难根据偏序集的定义逐条验证此引理。
+
+\begin{definition} [后效变换]
+对于变换 $\Phi: \underbracket{\A^\IZ \times \cdots \times \A^\IZ}_{\text{$n$ 个}} \rightarrow\A^\IZ$，我们称其为\emph{后效}的，当且仅当对于 $\forall i\in \IZ$，令 $J=\{j \mid j \preceq i\}$，任取 $a^{(1)}, \dots, a^{(n)}$，记 $\phi = \Phi [a^{(1)}, \dots, a^{(n)}]$，改变任何一者在 $I \backslash J$ 中的取值，都不会改变 $\phi_i$。
+\end{definition}
+
+\begin{lemma}
+卷积变换是后效的。
+\end{lemma}
+
+\begin{definition} [多项式左复合]
+我们总是可以定义多项式与一个生成函数的复合。记多项式 $F(x) = \sum_{k=0}^n f_k x^k$ 和序列 $g$ 对应的生成函数 $g(X)$。则复合 $h = f \circ g$ 定义为
+
+$$
+h(X) = \sum_{k=0}^n f_k g(X)^k
+$$
+\end{definition}
+
+\begin{lemma}
+多项式的左复合是后效的。
+\end{lemma}
+
+\begin{definition} [在线算法]
+
+\end{definition}
+
+\section{普通生成函数}
+
+
+
+\section{多元幂级数}
+
+\section{集合幂级数}
+
+\begin{definition}[集合幂级数的集合定义]
+令 $I=2^{\{1,\dots,n\}}\cup\{0\}$，对于 $S,T\in \IZ$，记集合的\emph{无交并} $S\sqcup T$ 为：
+
+$$
+S\sqcup T = \begin{cases}
+S \cup T & S\cap T = \varnothing\\
+0 & \mathrm{else}
+\end{cases}
+$$
+
+易见定义在 $(I,\sqcup)$ 上的生成函数就是经典的集合幂级数。
+\end{definition}
+
+但我们在这里给出不同于前人的讨论方法来定义集合幂级数，由此可以更加容易地叙述其代数性质。
+
+
+
+\subsection{逐点牛顿迭代法}
+
+考虑为了计算得到某个集合幂 $F$ 时，我们分解为计算 $\frac{\partial}{\partial x_n} F$ 和 $\left . F \right |_{x_n=0}$。此时，前者等价于 $[x_n^1]$ 部分，后者等价于 $[x_n^0]$ 部分。
+
+若我们确定了 $[x_n^0]$ 之后就能够通过 $\Theta(f(n))$ 的时间计算出 $[x_n^1]$，那么总复杂度也是 $\Theta(f(n))$ 的。（显然 $f(n) = \Omega(2^n)$）
+
+我们称这一方法为集合幂上的\emph{逐点牛顿迭代法}。
+
+\begin{problem}
+
+\end{problem}
+
+\subsubsection{复合}
+
+\begin{definition} [集合幂级数复合]
+给出 $\A$ 上的 $n$ 次\emph{指数生成函数}形式的多项式 $F = \sum_{k=0}^n f_k \frac{x^k}{k!}$ 和不含常数项的集合幂级数 $G \in \A\{x_1, \dots, x_n\}$。记其复合为
+
+$$
+F\circ G = \sum_{k=0}^n f_k\frac{G^k}{k!}
+$$
+
+注意当 $G$ 不含常数项时，$\frac{G^k}{k!}$ 总是良定义的。因为任取 $k$ 个非空不交集合 $S_1,\dots S_k$，记 $\bigsqcup_{j=1}^k S_j = S$，此时 $S_1,\dots S_k$ 的 $k!$ 个置换均贡献给 $x^S$ 项的系数。因此我们不妨直接定义 $[x^S]\frac{G^k}{k!}$ 为对于全体将 $S$ 划分为 $k$ 个无序非空集合 $S_1,\dots S_k$ 的方案，对于 $\prod_{i=1}^k [x^{S_i}]G$ 求和。
+\end{definition}
+
+\begin{theorem}
+集合幂级数复合可以在 $\Theta(n^22^n)$ 时间内完成计算。
+\end{theorem}
+
+考虑 $\frac{\partial}{\partial x_n} (F \circ G) = F'(G)\frac{\partial}{\partial x_n} G$，故我们将其规约为 $n-1$ 的子问题，但要计算 $F$ 和 $F'$ 对其复合的结果。
+
+记 $G_k$ 为 $\left. G \right |_{x_n = \dots x_{n-k+1}=0}$，归纳可知，对于 $0\le k\le n$，我们需要解决 $F, F', \dots, F^{(k)}$ 复合 $G_k$ 这 $k+1$ 个规模为 $n-k$ 的复合问题。
+
+我们依此顺序计算，瓶颈为对于每个 $k$，我们进行了 $n-k$ 次 $k$ 元集合幂级数乘法，其复杂度可由和式 $\Theta \left(\sum_{k=0}^n k^2 2^k (n-k)\right)$ 表示。
+
+经计算可得：
+$$
+\sum_{k=0}^n k^2 2^k (n-k) = 2(-13 + 13\cdot 2^n - 3n - 6\cdot 2^n n+ 2^n n^2)
+$$
+
+由此，该算法的复杂度为 $\Theta(n^2 2^n)$。
+
+\subsubsection{Tutte 多项式}
+
+\begin{theorem}
+Tutte 多项式可以在 $\Theta(n^2 2^n)$ 时间内计算。
+\end{theorem}
+
+
+\section{指数生成函数}
+
+如若 $1\sim n$ 在所进行计算的环上均同态可逆，那么指数生成函数没有额外讨论的意义，因为我们可以直接将序列变换为 $\widehat {f_n} = \frac {f_n}{n!}$。但若 $\A$ 是具有小质数因子的同余运算 $\mathbb Z/M\mathbb Z$，或者特征不为 $0$ 且小于等于 $n$ 的有限域之类，便不能直接除以 $n!$ 进行处理。我们首要需要解决的便是乘法如何进行。
+
+\subsection{卷积}
+
+\begin{definition}[二项卷积]
+对于以 $\mathbb Z_{\ge 0}$ 为下标，以 $\A$ 为系数的序列，我们定义其卷积 $c = a * b$：
+
+$$
+c_k = \sum_{i = 0}^k \binom k i a_i b_{k-i}
+$$
+\end{definition}
+
+\begin{theorem}[四模数 NTT]
+在模 $M$ 运算下，存在 $\Theta(n\log n \cdot \omega(M))$\footnote{$\omega$ 指互异质因子数量} 复杂度的二项卷积算法。
+\end{theorem}
+
+我们考虑首先如何解决 $M = p^k$ 时的情况，然后可以用 CRT 合并各情况。
+
+我们记 $v_p(n)$ 是 $n!$ 中 $p$ 的质因子次数，$p$-阶乘为 $n!_p = p^{v_p(n)}$，反 $p$-阶乘为 $\overline{n!_p} = \frac{n!}{n!_p}$。
+
+那么由定义显然 $\overline{n!_p}$ 还是同余 $M$ 可逆的。我们先令 $\widehat a_n = a_n \cdot \left( \overline{n!_p} \right)^{-1} \bmod M$，我们可以得到
+
+$$
+\widehat c_n \equiv \sum_k \left(\frac{n!_p}{k!_p (n-k)!_p}\right) \widehat a_k \widehat b_{n-k} \equiv \sum_k p^{v_p(n)-v_p(k)-v_p(n-k)} \widehat a_k \widehat b_{n-k} \pmod M
+$$
+
+\begin{theorem}[Kummer]
+
+$v_p(n)-v_p(k)-v_p(n-k)$ 就是在 $p$ 进制下，$n$ 减去 $k$ 时所发生的退位次数。
+
+\end{theorem}
+
+而 $n$ 在 $p$ 进制下最多只有 $\log_p n$ 位可退，因此我们知道 $p^d \le n$，因此我们在\emph{不取模}的情况下，可以得到 $\widehat c_n \le n \cdot nM^2 = n^2M^2$。
+
+虽然 $p$ 在模 $M$ 下不可逆，但是当 $p\le n$，自然满足在我们选取的 NTT 模数下都可逆。因此，这一涉及除法的卷积式子，因为已经保证了结果是值域在 $n^2M^2$ 内的整数，所以我们只需选取 NTT 模数进行卷积，之后用 CRT 合并即可。取 $n\le 10^6, M\le 10^9$ 的一般情况下，可得 $c_n \le 10^{30}$，使用四个 NTT 模数进行合并足够。目前美中不足的是，在通常的 $M$ 在 $10^9$ 范围内，就已经不可避免地在四模数 NTT 最后的 CRT 阶段使用 \texttt{int128}。
+
+因此对于每个 $M=p^k$ 的情况，我们都可以通过\emph{四模数 NTT}进行计算，那么对于一般的 $M$ 进行 CRT，算法的复杂度为 $\Theta(n\log n \cdot \omega(M))$，或者也可以解释为，结果值域为 $n^{1+\omega(M)}M^2$ 的卷积。
+
+而对于有限域而言，由于特征为 $p$，经过转化后我们计算的即是 $p$ 进制不进位加法卷积。沿用前述算法即可。
+
+\begin{theorem}
+模 $M$ 二项卷积可在 $\Theta(\R(n)\cdot \omega(M))$ 时间内在线进行。
+\end{theorem}
+
+经过 CRT 转化，我们将在线二项卷积转化为 $\omega(M)$ 个易于进行的 $M=p^k$ 形式的在线二项卷积。通过前述的四模数 NTT 规约，我们将在线二项卷积转化为四个同步进行的在线卷积。
+
+\section{狄利克雷生成函数}
