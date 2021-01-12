@@ -9,7 +9,7 @@
 
 \documentclass[12pt]{ctexart}
 \usepackage{geometry}                % See geometry.pdf to learn the layout options. There are lots.
-\geometry{a4paper}                   % ... or a4paper or a5paper or ... 
+\geometry{a4paper,left=1.5cm,right=1.5cm,top=2.5cm,bottom=2.5cm}                   % ... or a4paper or a5paper or ... 
 %\geometry{landscape}                % Activate for for rotated page geometry
 %\usepackage[parfill]{parskip}    % Activate to begin paragraphs with an empty line rather than an indent
 \usepackage{graphicx}
@@ -92,6 +92,130 @@
 \maketitle
 
 \tableofcontents
+
+\newpage
+
+\section{春天，在积雪下结一成形，抽枝发芽}
+
+\paragraph{简要题意} 输入 $n$，对于 $m=1\sim n$，输出 $m$ 阶\emph{单排列}（不存在长为 $2\sim m-1$ 的连续段的排列）的数量。
+
+同余 $998244353$，保证 $n\le 10^5$。
+
+\paragraph{解法}
+
+直观上看，单排列反应了某种排列的层级结构。我们考虑一个排列不停地缩掉一个非平凡的连续段，那么最后将会得到一个单排列。
+
+但是这种说法并不准确，我们发现缩完的排列如果是形如 $[1,2]$ 或者 $[2,1]$ 的话，那么可能并不是唯一的方式，这取决于实际上这个排列被切割成了几段。
+
+我们考虑记排列的 OGF 为 $F(x) = \sum_{n\ge 1} n!x^n$，单排列的 OGF 是 $G(x)$，前述的切割无法进行的排列的 OGF 是 $H(x)$，那么不难得到
+
+\begin{align*}
+F &= \sum_{n\ge 1}H^n\\
+&= \frac{H}{1-H}\\
+\frac 1F &= \frac 1H - 1
+\end{align*}
+
+接下来考虑 $G$ 的构成。首先去掉 $n=1$ 的情况，也即考虑 $(G - x) \circ F$，这样首先覆盖了所有 $n>1$ 的排列：$F -x$，而再考虑前述的“切割”部分，如果切割成了 $k$ 段，那么就有 $k-1$ 种被覆盖的方法。也即需要再加上
+
+\begin{align*}
+&\quad 2\left(\sum_{k\ge 2} (k-2)H^k\right)\\
+& = \frac{2H^3}{(1-H)^2}\\
+&= \frac 2{H^{-1}(H^{-1}-1)^2}\\
+&= \frac {2F^3}{1+F}
+\end{align*}
+
+因此，我们就有
+
+\begin{align*}
+(G - x) \circ F &= F - x + \frac {2F^3}{1+F}\\
+G \circ F &= 2F + \frac{2F^3}{1+F} - x\\
+G &= 2x + \frac{2x^3}{1+x} - F^{\langle -1 \rangle}
+\end{align*}
+
+可见，问题关键在于计算 $F$ 的复合逆。
+
+\paragraph{解级数、法 1} 我们知道其困难程度约等于给出 $A$，计算 $P = F\circ A$。对于数列 $f_n = [n\ge 1]n!$，由 $f_n = [n=1] + nf_{n-1}$ 可得一个 ODE：
+
+$$
+F = x(1 + F + xF')
+$$
+
+根据 $P' = (F'\circ A)\cdot A'$，我们可得
+
+\begin{align*}
+F\circ A &= A(1 + F\circ A + A(F'\circ A))\\
+P &= A \left(1+ P + A \frac{P'}{A'}\right)
+\end{align*}
+
+注意到这个式子通过 $\Theta \left(\frac{n\log^2 n}{\log\log n}\right)$\footnote{目前理论最优为 $\mathcal O\left(n\log n\mathrm{e}^{2\sqrt{\log 2\log\log n}}\right)$} 的半在线卷积来计算的话，等于说是复合就是半在线的，因此我们每次确定了 $F^{\langle -1 \rangle}$ 的前 $m$ 项，计算出此时的 $m+1$ 项，就能知道 $F^{\langle -1 \rangle}$ 的 $m+1$ 项。
+
+\paragraph{解级数、法 2} 我们考虑直接得到 $A = F^{\langle -1 \rangle}$ 的一个微分方程：
+
+\begin{align*}
+F\circ A &= x\\
+(F'\circ A)\cdot A' &= 1\\
+\left[\left(\frac Fx - 1-F\middle ) \right/ x\circ A\right]\cdot A' &= 1\\
+\left[ \frac xA - 1 - x \middle]\right/ A \cdot A' &= 1\\
+x\cdot A' &= (1+x)AA'+A^2
+\end{align*}
+
+由此，我们亦得到了一个可以通过半在线卷积计算的式子。
+
+$$
+a_n = -\sum_k (k+1)(a_{k+1}+a_k) a_{n-k}
+$$
+
+\emph{需注意半在线卷积的时候当 $v_k$ 确定了，此时还会影响 $u_{k-1}$ 的值。因此递归应当是一个形如 $(l, r]$ 的形式，表示 $l$ 的 $v$ 值已经算出。}
+
+\paragraph{点评}
+
+上述的两种方法最后均是将问题转为计算一个一阶微分方程，那么可否通过其通解在 $\Theta(n\log n)$ 内完成计算呢？在推导过程中我们会发现有一些困难，以法一中的式子为例：
+
+\newpage
+
+\section{A story of The Small P}
+
+\paragraph{简要题意} 有正整数 $N,m,k$，问有多少长为 $n(n<N)$ 的序列 $h$，满足 $1\le h_i\le m$，且 $h_i<h_{i+1}$ 的位置恰有 $k$ 个。
+
+同余 $998244353$，保证 $N,m,k<2^{19}-10$ 且 $(N-k+1)m<2^{20}-10$。
+
+\paragraph{解法} 我们首先注意到有 $k$ 个 $<$ 就是说序列被 $\ge$ 分割为了 $n-k$ 段。考查二元 GF 的基本单位，我们需要对每个间隔进行容斥，就有
+
+\begin{align*}
+&\quad \sum_n\sum_j\binom{n-1}{j-1} (-1)^{j-1} \binom m n x^nt^j\\
+&= t\sum_{n\ge 1} \binom m n x^n (1-t)^{n-1}\\
+&= t\frac{ (1+x(1-t))^m -1 }{1-t}
+\end{align*}
+
+因此我们就得到了整个序列的 GF，进而求答案：
+
+\begin{align*}
+&\quad \sum_{n<N}[x^n][t^{n-k}]\frac 1{1-t\frac{ (1+x(1-t))^m -1 }{1-t}}\\
+&= \sum_{n<N}[x^n][t^{n-k}]\frac{1-t}{1-t(1+x(1-t))^m}\\
+&= \sum_{n<N}[x^n][t^{n-k}]\sum_j (1-t)t^j(1+x(1-t))^{mj}\\
+&= \sum_{n<N}[t^{n-k}]\sum_j \binom {mj}n (1-t)^{n+1}t^j\\
+&= \sum_j \sum_{n<N} \binom {mj}n \binom{n+1}{n-k-j}(-1)^{n-k-j}\\
+&= \sum_j \sum_{n<N} \binom {mj}n \left[ \binom n{n-k-j} + \binom n{n-k-j-1} \right](-1)^{n-k-j}
+\end{align*}
+
+接下来我们考虑抽象出 $A=mj,B=k+j$ 或 $B=k+j+1$，那么就要求和式
+
+$$
+\sum_{n<N} \binom An \binom{n}{n-B}(-1)^{n-B}
+$$
+
+注意到这就是
+
+$$
+\sum_{n<N} \binom AB \binom{A-B}{n-B}(-1)^{n-B}
+=\binom AB \binom{A-B-1}{N-B-1}(-1)^{N-B-1}
+$$
+
+故而问题已经转化为了 $\Theta(N-k)$ 个组合数。题设刚好保证了组合数的上界较小，故而瓶颈为预处理阶乘，复杂度为 $\Theta((N-k)m)$。
+
+\paragraph{拓展} 实际上由于组合数的下面总是较小的，在 $N,m,k$ 同阶的情况我们总是能够轻易做到 $\tilde O(N)$ 的。
+
+\paragraph{点评} 一个比较简单的通过二元 GF 进行容斥的案例。如果是数排列就会得到一些欧拉数问题。事实上如果我们对答案除以 $m^n$，再取极限 $m \rightarrow \infty$，便会得到欧拉数。
 
 \newpage
 

@@ -1,17 +1,12 @@
-%% !TEX encoding = GBK
-%% ��Ϣѧ����ƥ���й����ҶӺ�ѡ��Ա����ģ��
-%% ģ�����ߣ���ΰ��
-%% ģ���޸ģ�������
-%%
 \NeedsTeXFormat{LaTeX2e}[1999/12/01]
 \ProvidesClass{noithesis}
-[2013/02/16 1.0 Template for NOI Thesis]
+[2020/12/31 2.0 Template for NOI Thesis]
 \LoadClass[12pt, a4paper]{article}
 \RequirePackage{enumerate}
 \RequirePackage{graphicx,subfigure}
 \RequirePackage{amsmath,amsthm,amsfonts,amssymb,bm}
-\RequirePackage{txfonts}
-\RequirePackage{CJK,ctex}
+\RequirePackage{txfonts,fontspec}
+\RequirePackage{xeCJK}
 \RequirePackage{longtable,multirow}
 \RequirePackage{color,xcolor}
 \RequirePackage{courier}
@@ -24,8 +19,16 @@
 \RequirePackage{algorithm,algorithmic}
 \RequirePackage{booktabs}
 \RequirePackage{ulem}
+\RequirePackage{clrscode3e}
 
-%% ҳ�߾�
+% 若本机编译时缺少字体，可直接在此处修改，本机编译通过即可。
+\RequirePackage[fontset=mac]{ctex}
+\setCJKmainfont[BoldFont=SimHei]{SimSun}
+\setCJKfamilyfont{song}{SimSun}
+\setCJKfamilyfont{fs}{FandolFang}
+\setCJKfamilyfont{kai}{STKaiti}
+\setCJKfamilyfont{hei}{SimHei}
+
 \setlength{\textwidth}{\paperwidth}
 \setlength{\textheight}{\paperheight}
 \setlength\marginparwidth{0cm}
@@ -41,7 +44,6 @@
 \setlength{\headsep}{0.5cm}
 \addtolength{\textheight}{-8.6cm}
 
-%% ҳüҳ��
 \pagestyle{fancy}
 \renewcommand{\headheight}{20pt}
 \renewcommand{\headrulewidth}{0.2pt}
@@ -49,25 +51,21 @@
 \lhead{\parbox{\textwidth}{\textsf{\footnotesize \thetitle}}}
 \chead{}
 \rhead{\parbox{\textwidth}{\raggedleft\textsf{\footnotesize \theauthor}}}
-\lfoot{\parbox{\textwidth}{\textsf{\footnotesize 2019����Ϣѧ����ƥ���й����ҶӺ�ѡ��Ա����}}}
+\lfoot{\parbox{\textwidth}{\textsf{\footnotesize 2021年信息学奥林匹克中国国家集训队论文}}}
 \cfoot{}
 \rfoot{\parbox{\textwidth}{\raggedleft\footnotesize \thepage{}}}
 
-%% ����
-\newcommand{\song}{\CJKfamily{song}}    % ����
-\def\songti{\song}
-\newcommand{\fs}{\CJKfamily{fs}}        % ������
-\def\fangsong{\fs}
-\newcommand{\kai}{\CJKfamily{kai}}      % ����
-\def\kaishu{\kai}
-\newcommand{\hei}{\CJKfamily{hei}}      % ����
-\def\heiti{\hei}
-\newcommand{\li}{\CJKfamily{li}}        % ����
-\def\lishu{\li}
-\newcommand{\you}{\CJKfamily{you}}      % ��Բ
-\def\youyuan{\you}
+\setmainfont{Times New Roman}
 
-%% �ֺ�
+\newcommand{\song}{\CJKfamily{song}}
+\def\songti{\song}
+\newcommand{\fs}{\CJKfamily{fs}}
+\def\fangsong{\fs}
+\newcommand{\kai}{\CJKfamily{kai}}
+\def\kaishu{\kai}
+\newcommand{\hei}{\CJKfamily{hei}}
+\def\heiti{\hei}
+
 \newlength\noilinespace
 \newcommand{\noiChooseFont}[2]{
    \setlength{\noilinespace}{#2*\real{#1}}
@@ -104,27 +102,23 @@
 }
 
 \renewenvironment{abstract}{
-\section*{ժ~~Ҫ}
+\section*{摘~~要}
 \kai
 }{}
 
-\renewcommand\tableofcontents{%
-  \section*{Ŀ~~¼}
+\renewcommand\tableofcontents{
+  \section*{目~~录}
   \@starttoc{toc}\normalsize}
 
-\renewcommand\section{\@startsection{section}{1}{\z@}%
-                     {-24bp \@plus -1ex \@minus -.2ex}%
-                     {6bp \@plus .2ex}%
+\renewcommand\section{\@startsection{section}{1}{\z@}
+                     {-24bp \@plus -1ex \@minus -.2ex}
+                     {6bp \@plus .2ex}
                      {\hei \sihao[1.429]}}
-\renewcommand\subsection{\@startsection{subsection}{2}{\z@}%
-                        {-16bp \@plus -1ex \@minus -.2ex}%
-                        {6bp \@plus .2ex}%
+\renewcommand\subsection{\@startsection{subsection}{2}{\z@}
+                        {-16bp \@plus -1ex \@minus -.2ex}
+                        {6bp \@plus .2ex}
                         {\hei\banxiaosi[1.538]}}
-\renewcommand\subsubsection{\@startsection{subsubsection}{3}{\z@}%
-                           {-16bp \@plus -1ex \@minus -.2ex}%
-                           {6bp \@plus .2ex}%
+\renewcommand\subsubsection{\@startsection{subsubsection}{3}{\z@}
+                           {-16bp \@plus -1ex \@minus -.2ex}
+                           {6bp \@plus .2ex}
                            {\hei \xiaosi[1.667]}}
-
-\if 0
-
-\fi

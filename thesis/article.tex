@@ -9,7 +9,7 @@
 
 \documentclass[12pt]{ctexart}
 \usepackage{geometry}                % See geometry.pdf to learn the layout options. There are lots.
-\geometry{a4paper}                   % ... or a4paper or a5paper or ... 
+\geometry{a4paper,left=1.5cm,right=1.5cm,top=2.5cm,bottom=2.5cm}                   % ... or a4paper or a5paper or ... 
 %\geometry{landscape}                % Activate for for rotated page geometry
 %\usepackage[parfill]{parskip}    % Activate to begin paragraphs with an empty line rather than an indent
 \usepackage{graphicx}
@@ -82,7 +82,11 @@
 \theoremstyle{definition}
 \newtheorem{definition}{\hspace{2em}\bfseries\textsf {定义}}[section]
 
-\newtheorem{problem}{\hspace{2em}\bfseries\textsf {例题}}[section]
+\newtheorem{problem}{\hspace{2em}\bfseries\textsf {例题}}
+
+\newenvironment{solution}{{\noindent \it 解法\quad}}{\hfill $\spadesuit$\par}
+
+\newif\ifcont
 
 \title{\textbf{\Huge 信息学竞赛中的生成函数计算理论框架}}
 \author{\textbf{北京大学附属中学\quad 李白天}}
@@ -91,6 +95,8 @@
 \begin{document}
 
 \maketitle
+
+\conttrue
 
 \input{main}
 
