@@ -23,9 +23,9 @@
 
 % 若本机编译时缺少字体，可直接在此处修改，本机编译通过即可。
 \RequirePackage[fontset=mac]{ctex}
-\setCJKmainfont[BoldFont=SimHei]{SimSun}
+\setCJKmainfont[BoldFont=SimHei,ItalicFont=STKaiti]{SimSun}
 \setCJKfamilyfont{song}{SimSun}
-\setCJKfamilyfont{fs}{FandolFang}
+\setCJKfamilyfont{fs}{STFangsong}
 \setCJKfamilyfont{kai}{STKaiti}
 \setCJKfamilyfont{hei}{SimHei}
 
