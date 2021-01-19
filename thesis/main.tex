@@ -8,6 +8,8 @@
 \newcommand\DOI[1]{doi: \href{http://doi.org/#1}{\texttt{#1}}}
 \newcommand\ARXIV[1]{arxiv: \href{https://arxiv.org/abs/#1}{\texttt{#1}}}
 
+\allowdisplaybreaks
+
 \makeatletter
 \newenvironment{breakablealgorithm}
   {% \begin{breakablealgorithm}
@@ -51,6 +53,8 @@
 
 \subsection{生成函数方程}
 
+当组合对象的描述中进行自指时，生成函数方程便自然产生。在方程中种种运算的复合会使得计算更为困难。例如组合对象的笛卡尔积导出生成函数的乘积 $A(x)\times B(x)$，结构的复合导出生成函数的复合 $A(B(x))$，EGF 中对位置的固定导出生成函数的微分 $A'(x)$，P\"olya 计数定理导出下标变换 $A(x^k)$ 等。
+
 \subsection{远处系数求值}
 
 远处系数求值意谓在提取第 $n$ 次项系数时，往往 $\Omega(n)$ 的计算量都是不被允许的。而能在 $o(n)$ 时间内完成计算的问题要求确实比较苛刻，但目前仍有一些可探讨的空间。目前较为成熟的两类远处系数求值是\emph{线性递推数列}和\emph{整式递推数列}。
@@ -71,9 +75,22 @@ $$ a_n = -\frac1{P_0(n)}\sum_{j=1}^m a_{n-j}P_j(n) $$
 
 \subsection{线性变换}
 
-\paragraph{转置原理} \cite{tellegen} 指出，在考虑一类可表示为对输入向量 $\mathbf x$ 进行矩阵乘法 $\mathbf {Mx}$ 的计算时，可考虑先对 $\mathbf M^{\mathsf T}\mathbf y$ 的计算设计算法，然后将算法的各步骤转置改写。
+在对序列进行的线性变换中，有一类变换是极常见的，其变换可以用多项式的表示方法描述。围绕多项式的单项式系数表示和下降幂系数表示，下列等式
+$$
+f(x) = \sum_{n\le N} a_n x^n = \sum_{n\le N} b_n x(x-1)\dots (x-n+1)
+$$
+中，序列 $a$ 与 $b$ 的相互转化目前有 $\Theta(n\log ^2n)$ 的复杂度这一壁垒。但在各自的表示之下，二者在进行其他运算时却常常具有不同的优势，各自在一类问题上具有 $\Theta(n\log n)$ 或者 $\Theta(n)$ 的复杂度。
 
-\section{算法的评定} 
+此外，在处理线性变换时，转置原理可以帮助我们简化问题。
+
+\ifcont
+\paragraph{${\textbf{转} \atop \textbf{置}}$原理}
+\else
+\paragraph{转置原理}
+\fi
+\cite{tellegen} 指出，在考虑一类可表示为对输入向量 $\mathbf x$ 进行矩阵乘法 $\mathbf {Mx}$ 的计算时，可考虑先对 $\mathbf M^{\mathsf T}\mathbf y$ 的计算设计算法，然后将算法的各步骤转置改写。
+
+\section{算法的评定}
 
 \subsection{系数}
 
@@ -161,6 +178,18 @@ c_k = \sum_{i\circ j = k} a_i b_j
 $$
 \end{definition}
 
+\begin{definition} [截取]
+称 $I'$ 是 $I$ 的一个截取，当且仅当 $\{0,1\}\subseteq I'\subseteq I$ 且 $\forall i\in I\backslash I', \forall j \in I, i\circ j\notin I'\backslash \{0\}$。从而定义运算 $\circ_{I'}$ 为
+$$
+i\circ_{I'} j = \begin{cases}
+i\circ j & i\circ j \in I'\\
+0 & \mathrm{else}
+\end{cases}
+$$
+\end{definition}
+
+形象地看，从 $I$ 中截取的 $I'$ 即为删去了 $I$ 中的一部分「边界」，仅保留剩余部分的信息。
+
 \subsubsection{在线算法}
 
 通过前文的铺垫，我们接下来叙述一个静态的算法与其\emph{在线}形式的关联。
@@ -194,7 +223,7 @@ $$
 多项式的左复合关于 $g$ 是后效的。
 \end{lemma}
 
-\begin{definition} [在线算法]
+\begin{definition} [在线算法] \label{relaxedalgo}
 对于一具有 $n$ 个输入的后效变换 $\Psi$ 以及对于一个保后效序的优先级 $\delta: \IZ \rightarrow \mathbb Z_{\ge 0}$，满足 $i \prec j \Rightarrow \delta(i) < \delta(j)$，我们称一个算法是\emph{在线}计算 $\Psi$ 的当其能配合黑盒完成以下流程：
 \begin{enumerate}
 \item 令 $a^{(1)}, \dots, a^{(n)}$ 所有项均为 $0$。
@@ -224,7 +253,7 @@ $$
 $$
 \end{lemma}
 
-\begin{lemma}
+\begin{lemma} \label{der}
 对于微分型算子 $\mathfrak D_1$ 和 $\mathfrak D_2$，其线性组合 $u\mathfrak D_1 + v\mathfrak D_2$ 也是微分型算子，其中 $u,v\in \mathfrak G[X]$。
 \end{lemma}
 
@@ -246,9 +275,17 @@ $$
 
 \paragraph{在线方法}
 
-在线方法意为
+在线方法意为将方程计算的每一步运算都找到一个可以高效执行的在线算法，且具有同一步调（即定义 \ref{relaxedalgo} 描述的 $\delta$）。如此一来，便可以将解方程转化为一个逐步进行的方程验证问题，只需通过在线算法逐步验算出各项，然后计算出使方程在该项系数满足时，取到的「修正值」。
+
+在线算法中最重要的对象无外乎为\emph{在线卷积}，而多项式的左复合通常需要通过其本身满足的微分方程，将复合问题本身转化为一个带有微分型算子的解方程问题。
 
 \paragraph{牛顿迭代法}
+
+牛顿迭代法主要通过对下标系统 $I$ 的截取来分步降低问题的求解难度。对于涉及多项式左复合 $F(G)$ 的方程，设 $I$ 截取的部分 $I'$ 已经算出答案，对应为 $G_0$，则考虑将 $F(G)$ 在 $G_0$ 处做 Taylor 展开，即 $F(G) = \sum_{n\ge 0} \frac{F^{(n)}(G_0)}{n!} (G-G_0)^n$，由于 $G-G_0$ 已知在 $I'$ 下标处系数为 $0$，往往能使得 $(G-G_0)^n$ 很快为 $0$，通常会通过设置 $I'$ 使得 $n\ge 2$ 时的项均消除，便有 $F(G) = F(G_0) + F'(G_0)(G-G_0)$，变成易于处理的线性情况。
+
+牛顿迭代法在很多情况下较在线方法的复杂度略胜一筹，在部分简洁问题上亦表现出色。但实践中其表现有时不够令人满意，原因在于在解较为复杂的方程时，牛顿迭代过程会有若干子问题层层嵌套，虽在复杂度上没有影响，却会使得常数逐轮翻倍。
+
+以我们熟悉的一元幂级数 $\exp$ 的计算为例，采取诸如 \cite{newton} 中介绍的非常细致的优化可以做到约等于 $2\frac 7{12}$ 次同长度多项式乘法的时间，但粗暴的实现可能会消耗 $7\frac 12$ 次同长度多项式乘法的时间甚至更大。在 OI 的实践范围内，基于半在线卷积的常见 $\Theta\left(\frac{n\log ^2 n}{\log \log n}\right)$ 实现反而具有更高的效率。
 
 \section{普通生成函数}
 
@@ -320,6 +357,21 @@ $$
 
 \subsubsection{牛顿迭代法}
 
+在一元生成函数中，只需截取 $I' = [0, \lfloor n/2\rfloor] \cap \mathbb Z \cup 0_I$，即先计算出 $\bmod x^{\lfloor n/2\rfloor+1}$ 的结果，即可进行通常意义的牛顿迭代。
+
+此外，这样的截取亦消解了下标变换算子带来的影响。对于 $\mathfrak S_k F(x) = F(x^k)$，若 $k=1$ 则其就是 $F(x)$，否则 $F(x^k)$ 在 $0\sim n$ 项的系数仅基于 $F(x)$ 在 $0 \sim \lfloor n/k\rfloor$ 项的系数，而它们已经完全确定，迭代过程中总是可以当做已经确定的常量。
+
+\subsubsection{在线方法}
+
+在线方法相较牛顿迭代法自由之处在于可以处理较为复杂的形式幂复合问题。简而言之，形式幂 $F(x)$ 若满足一个关于 $F,F',\dots,F^{(m)}$ 的多项式方程 $P(F,F',\dots,F^{(m)})=0$，可以基于这一方程，得到 $H=F\circ G$ 的一个方程 $Q(H,H',\dots,H^{(m)})=0$，进而通过该方程得到的递推式在线求解 $H$。具体地，$Q$ 可以通过如下方式给出：
+\begin{enumerate}
+\item 依定义，有 $F(G(x)) = H(x)$。
+\item 由 $H'(x) = F'(G(x))G'(x)$，可将 $F'(G(x))$ 表示为 $\frac{H'}{G'(x)}$。
+\item 由 $H''(x) = F''(G(x))G'^2(x) + F'(G(x))G''(x)$，可将 $F''(G(x))$ 用 $H'$ 和 $H''$ 表示。
+\item 逐次递推，可将 $F^{(k)}(G(x))$ 用 $H,H',\dots,H^{(k)}$ 表示。
+\item 因此可将方程 $P$ 直接带入 $G(x)$，则有 $P(F(G(x)),F'(G(x)),\dots,F^{(m)}(x)) = 0$，将各项均替换为由 $H$ 表达的式子之后通分，即得方程 $Q$。
+\end{enumerate}
+
 \subsubsection{Lagrange 反演}
 
 对于一元生成函数来说，Lagrange 反演有效地将一个生成函数与其复合逆的系数建立起了联系。为体现形式的优美性，我们需在形式 Laurent 级数下描述 Lagrange 反演。本文中只展示一个在特征为 $0$ 的域上的证明方法，在一般环上的通用证明可参看 \cite[Sec. 1.2]{combenum}。
@@ -388,7 +440,7 @@ $$
 
 读者只需确认 $H(x) = x^k$ 的情况即可验证，在此不予赘述。
 
-\begin{problem}[Slime and Sequences]\footnote{来源：许庭强与本人共同命制，\url{http://codeforces.com/problemset/problem/1349/F2}，已省略得到生成函数的推导过程}
+\begin{problem}[Slime and Sequences\footnote{来源：许庭强与本人共同命制，\url{http://codeforces.com/problemset/problem/1349/F2}，已省略得到生成函数的推导过程}]
 计算 $[z^n]\frac{t(\me^{z(1-t)}-1)}{(1-z)(1-t\me^{z(1-t)})}$ 的系数同余 $998244353$，保证 $1\le n\le 10^5$。
 \end{problem}
 
@@ -445,7 +497,7 @@ $$
 
 其证明依然大同小异，不予赘述。
 
-\begin{problem}[简单的普及组计数]\footnote{来源：戴江齐，加强自 \url{https://acm.nflsoj.com/problem/308}，已省略得到生成函数的推导过程}\label{pjcount}
+\begin{problem}[简单的普及组计数\footnote{来源：戴江齐，加强自 \url{https://acm.nflsoj.com/problem/308}，已省略得到生成函数的推导过程}\label{pjcount}]
 设幂级数 $F(x)$ 满足 $F = \frac x{(1-(m-1)F)^{k-1}}$，求 $[x^n]\frac 1{1-mF}$ 同余质数 $p$，保证 $1\le n,k\le 10^9, 1\le m < p\le 10^5$。
 \end{problem}
 
@@ -579,13 +631,36 @@ $$
 
 因而我们可以直接计算 $\tilde F(x,t) \times \tilde G(x, t) \bmod (t^k-1)$，第 $(i_1,\dots,i_k)$ 项即为 $x^it^{\chi(i)\bmod k}$ 次项系数。此时我们可以对 $x$ 进行 DFT，然后对 $t$ 维暴力进行 $\Theta(k^2)$ 的乘法（因为 $k\le \log_2 n$）完成计算，复杂度为 $\Theta(k\Mul(n))$。
 
+在某种意义上，上述占位函数的构造其实是唯一的，若占位函数满足 $\chi(i) = \sum_{j=1}^k i_j \cdot c_j$，容易发现上述的取整符号也符合这一要求，其线性组合亦满足。每一个进位要求相当于每次 $i_j$ 减去 $k_j$，而 $i_{j+1}$ 加上 $1$ 后 $\chi(i)$ 恰好变化量为 $1$，这就要求了 $k_j\cdot c_j - c_{j+1} = 1$。总共对于 $1\le j\le k-1$ 各有一个约束，因此 $\chi$ 的自由度为 $1$，对于任意 $c$，$\widehat \chi(i) = \chi(i) + c \cdot i$ 同样是一个满足要求的占位函数。此时前面给出的 $\chi(i)$ 就是一个特解。
+
 容易发现，前述的下标映射天然赋予了一个在线算法的计算顺序，因此有
 
 \begin{lemma}
 多元在线卷积可在 $O(k\R(n))$ 完成。
 \end{lemma}
 
-值得一提的是，这一计算顺序也可以直接作用于牛顿迭代法的计算。其正确性亦不难解释，因为我们将高维卷积考虑为带有占位多项式的 $\sum_i f_i x^i t^{\chi(i)}$ 卷积时，对其进行任何运算，只会产生一些 $j < \chi(i)$ 的 $x^it^j$ 项，且这些项不会再对形如 $x^it^{\chi(i)}$ 项有贡献。因此我们实际上就是牛顿迭代的时候只维护这个多项式的 $\chi(i)$ 所构成的上轮廓。
+这一计算顺序也可以直接作用于牛顿迭代法的计算。其正确性亦不难解释，因为我们将高维卷积考虑为带有占位多项式的 $\sum_i f_i x^i t^{\chi(i)}$ 卷积时，对其进行任何运算，只会产生一些 $j < \chi(i)$ 的 $x^it^j$ 项，且这些项不会再对形如 $x^it^{\chi(i)}$ 项有贡献。因此我们实际上就是牛顿迭代的时候只维护这个多项式的 $\chi(i)$ 所构成的上轮廓。
+
+\subsection{微分型算子}
+
+在对多元函数的某一元 $x_j$ 求微分时，会损失 $[x_j^0]$ 部分的所有信息，但在许多计算中，我们仅利用了引理 \ref{der} 的性质，因此取各元微分的线性组合 $\mathfrak D=\sum_j c_j \frac{\partial}{\partial x_j}$ 同样是可用的。但这样一来就让 $x_1^{i_1}\dots x_k^{i_k}$ 项的系数分散到了 $k$ 个位置，这同样不太利于计算。
+
+究其原因，我们其实最好有一个既是微分型，又是点乘型的算子。而取 $\mathfrak D=\sum_j c_j x_j\frac{\partial}{\partial x_j}$ 则会满足这一条件，它使得
+$$
+\mathfrak D x_1^{i_1}\dots x_k^{i_k} = \mathfrak (c_1i_1+\dots+c_ki_k)x_1^{i_1}\dots x_k^{i_k}
+$$
+事实上，这也覆盖了所有情况。
+\begin{lemma}
+一个线性算子既是微分型，又是点乘型当且仅当其为 $\sum_j c_j x_j\frac{\partial}{\partial x_j}$ 的形式。
+\end{lemma}
+\begin{proof}
+$\Leftarrow$：逐条验证即可。$\Rightarrow$：只需考虑令 $c_j = \frac{\mathfrak D x_j}{x_j}$ 即得。
+\end{proof}
+而在实践中，以下两种 $\mathfrak D$ 的取法是较为有用的。
+\begin{itemize}
+\item 取 $\mathfrak D=\sum_j x_j\frac{\partial}{\partial x_j}$，这样使得点乘的取值最少。
+\item 取 $\mathfrak D x^i = ix^i$，这样可以在实现中完全照搬一元多项式的写法。
+\end{itemize}
 
 \subsection{多元 Lagrange 反演}
 
@@ -597,27 +672,53 @@ $$
 
 称其为\emph{树形}是很形象的，若从 OGF 的角度审视，$\mathbf G$ 可以认为是给出了一族有根树的生成关系，它规定了对于第 $i$ 种节点，每种孩子集合的设置方案数。而 $F_i$ 就是规定以第 $i$ 种节点为根的有根树。
 
-\begin{theorem}[多元 Lagrange]
+\begin{theorem}[多元 Lagrange]\label{multilag}
 对于 $H \in R((\mathbf x))$ 和由 $\mathbf G$ 定义的树形复合方程 $\mathbf F$，记 $\mathbf x^{\mathbf k} = x_1^{k_1} x_2^{k_2} \cdots x_n^{k_n}$。有
 $$
-[\mathbf x^{\mathbf k}]H(\mathbf F) = [\mathbf x^{\mathbf k}] \mathbf H \mathbf G^{\mathbf k} \left \| 
+[\mathbf x^{\mathbf k}]H(\mathbf F) = [\mathbf x^{\mathbf k}] H \mathbf G^{\mathbf k} \left \| 
+\delta_{i,j} - \frac{x_j}{G_i(\mathbf x)} \frac{\partial G_i (\mathbf x)}{\partial x_j}
+\right \|\footnote{
+其中 $\delta_{i,j}=[i=j]$，而 $\|\cdot\|$ 表示对所括的矩阵取行列式。}
+$$
+\end{theorem}
+
+这里仅给出一个在特征为 $0$ 的域 $K$ 上 $H\in K[[\mathbf x]]$ 时的证明，通用证明仍参看 \cite[Sec. 1.2]{combenum}。
+
+\begin{proof}
+只需证明 $H = \mathbf {x^m}$ 时的情况即可推及其线性组合，即只需证明
+$$
+[\mathbf x^{\mathbf k}]\mathbf {F^m} = [\mathbf x^{\mathbf k}] \mathbf {x^m}\mathbf G^{\mathbf k} \left \| 
 \delta_{i,j} - \frac{x_j}{G_i(\mathbf x)} \frac{\partial G_i (\mathbf x)}{\partial x_j}
 \right \|
 $$
-其中 $\|\cdot\|$ 表示对所括的矩阵取行列式。
-\end{theorem}
+将其看做 EGF，则等式左侧描述的是 $m_i$ 颗以第 $i$ 种节点为根的有根树组成的森林，且第 $i$ 种节点共有 $k_i$ 个。而观察右侧，$\mathbf {x^m}\mathbf G^{\mathbf k}$ 的意图无非是先令每个节点任选其孩子集合，而这会导致一些有环的情况被统计进入，应当枚举环进行容斥。考虑设矩阵
+$$
+\mathbf M = \left(\delta_{i,j} - \frac{x_j}{G_i(\mathbf x)} \frac{\partial G_i (\mathbf x)}{\partial x_j}\right)_{i,j=1}^n
+$$
+那么将原图的 $t$ 个点替换为一个长度为 $t$ 的环的方法则会被 $\operatorname{tr} \mathbf M^t$ 统计 $t$ 次，故单个环进行替代的生成函数由
+$$
+C = \sum_{t\ge 1} \frac 1t\operatorname{tr} \mathbf M^t = \operatorname{tr}\left(\sum_{t\ge 1} \frac 1t\mathbf M^t\right) = \operatorname{tr} \left(-\log (\mathbf{I-M})\right)
+$$
+给出。故对其容斥的生成函数为 $\sum_{l\ge 0} \frac{(-C)^l}{l!}=\exp \left(-\operatorname{tr} \left(-\log (\mathbf{I-M})\right)\right) = \exp \left(\operatorname{tr} \log (\mathbf{I-M})\right)$。矩阵的迹与行列式之间有关系 $\det \exp \mathbf A = \exp \operatorname{tr} \mathbf A$，带入 $\mathbf A = \log (\mathbf{I-M})$ 既得容斥因子为 $|\mathbf{I-M}|$，故命题得证。
+\end{proof}
 
-%这里仅给出一个 $H\in R[[\mathbf x]]$ 时的组合解释，代数证明仍参看 \cite[Sec. 1.2]{combenum}。
+\begin{problem}[矩阵树\footnote{来源：本人命制的模拟赛题目}]
+有一张图，总共有 $n_1+\dots+n_k$ 个节点，我们依次称其为第 $1,2,\dots,k$ 部分。对于全体 $i$ 部分到 $j$ 部分的点对，两两之间有 $a_{i,j}$ 条边。输出这张图的生成树数量同余 $998244353$。保证 $1\le n\le 10^8, 1\le k\le 300, 0\le a_{i,j}=a_{j,i}\le 1$。
+\end{problem}
 
-%\begin{proof}
-%只需证明 $H = \mathbf {x^m}$ 时的情况即可推及其线性组合，只需证明
-%$$
-%[\mathbf x^{\mathbf k}]\mathbf {F^m} = [\mathbf x^{\mathbf k}] \mathbf {x^m}\mathbf %G^{\mathbf k} \left \| 
-%\delta_{i,j} - \frac{x_j}{G_i(\mathbf x)} \frac{\partial G_i (\mathbf x)}{\partial x_j}
-%\right \|
-%$$
-%考虑先设置 $n$ 个栈，第 $i$ 个栈中放置 $k_i$ 个第 $i$ 类节点，栈中的节点表示尚未确定其孩子集合。考虑 $\mathbf{x^n}$ 依次乘入，乘入一个 $x_i$ 时表示当前 DFS 至一个 $i$ 类节点，我们从栈中取出，此时根据 $G_i$ 的系数为贡献，选择一个孩子集合的方案，将对应的孩子集合构成的 $\mathbf x$ 乘入，计算其贡献。当 $\mathbf{x^n}$ 触发的所有 DFS 尚未结束时 DFS 至一类节点 $j$，但该栈已经空，则说明 $x_j$ 的幂次此时已经超过 $k_j$，不可能贡献答案。若 $\mathbf{x^m}$ 触发的所有 DFS 顺利结束，此时设第 $i$ 个栈中还剩下 $j_i$ 个，方案合法当且仅当 $\mathbf {j=0}$，因此我们需容斥掉 $\mathbf{j\neq 0}$ 的部分，考虑接下来栈中每个元素依据 $G_i$ 决策孩子集合，那么方案被统计当且仅当每类节点的总入度等于剩余总点数。
-%\end{proof}
+\begin{solution}
+我们考虑先写出一个生成函数的方程组来刻画这个问题，设 $T_i(\mathbf x)=T_i(x_1,\dots,x_k)$ 表示以一个颜色为 $i$ 的节点为根的生成树方案数的 EGF（除以 $n_1!\dots n_k!$）那么易列方程
+$$
+T_i(\mathbf x)=x_i \exp \left(\sum_j a_{i,j} T_j(\mathbf x) \right)
+$$
+那么我们要求的即为 $\frac 1{n_1}\left[\frac{x_1^{n_1}}{n_1!}\dots\frac{x_k^{n_k}}{n_k!}\right] T_1(\mathbf x)$，根据多元拉格朗日反演，答案转换为
+\begin{align*}
+&\quad\frac 1{n_1}\left[\frac{x_1^{n_1}}{n_1!}\dots\frac{x_k^{n_k}}{n_k!}\right] T_1(\mathbf x)\\
+&= \frac 1{n_1}\left[\frac{x_1^{n_1}}{n_1!}\dots\frac{x_k^{n_k}}{n_k!}\right] x_1\exp\left(\sum_{i,j} n_ia_{i,j}x_j\right) \left \| \delta_{i,j}-a_{i,j}x_j \right\|\\
+&= \left[\frac{x_1^{n_1-1}}{(n_1-1)!}\frac{x_2^{n_2}}{n_2!}\dots\frac{x_k^{n_k}}{n_k!}\right] \exp\left(\sum_{i,j} n_ia_{i,j}x_j\right) \left \| \delta_{i,j}-a_{i,j}x_j \right\|
+\end{align*}
+注意此时求行列式的第 $j$ 列只和 $x_j$ 有关，因此我们在算行列式的时候显然在确认第 $j$ 列选谁的时候就得到 $x_j$ 次幂部分的系数，设 $d_j=\sum_i n_ia_{i,j}$，那么对于 $j\ge 2$，我们可以直接将矩阵的第 $(i,j)$ 项替换为 $\left[\frac{x_j^{n_j}}{n_j!}\right] \exp (d_jx_j)(\delta_{i,j} - a_{i,j}x_j) = \delta_{i,j} d_j^{n_j} - a_{i,j} n_j d_j^{n_j-1}$；对于 $j=1$，替换为 $\left[\frac{x_1^{n_1-1}}{(n_1-1)!}\right] \exp (d_1x_1)(\delta_{i,1} - a_{i,1}x_1) = \delta_{i,1} d_1^{n_1-1} - a_{i,1} (n_1-1) d_1^{n_1-2}$。\footnote{由于指数来源于对 $\exp$ 的系数提取，这里 $b<0$ 时应当有 $a^b=0$。}因此我们直接计算这个矩阵的行列式即可得到答案。
+\end{solution}
 
 \section{集合幂级数}
 
@@ -647,7 +748,7 @@ $$
 当 $\A$ 取任何环时，计算集合幂级数卷积的复杂度可以做到 $\Theta(n^22^n)$。
 \end{theorem}
 
-我们可以照搬高维序列卷积的计算方法，由于各维度都极小，可以采取插值转化。注意到在任意环上总是存在 $0,1$，因此我们可以直接选取 $\alpha^{(i)}_0= 0, \alpha^{(i)}_1= 1$ 进行插值转化。事实上，这就是经典的快速 M\"obius 变换以及占位多项式的表述：看做集合并卷积并且用集合大小进行占位。
+我们可以照搬高维序列卷积的计算方法，由于各维度都极小，采取插值转化的复杂度与高维卷积的通法一致，且具有更小的常数。注意到在任意环上总是存在 $0,1$，因此我们可以直接选取 $\alpha^{(i)}_0= 0, \alpha^{(i)}_1= 1$ 进行插值转化。事实上，这就是经典的快速 M\"obius 变换以及占位多项式的表述：看做集合并卷积并且用集合大小进行占位。
 
 \begin{theorem}
 计算集合幂级数\emph{在线卷积}的复杂度可以做到 $\Theta(n^22^n)$。
@@ -745,15 +846,33 @@ $$
 注意当 $G$ 不含常数项时，$\frac{G^k}{k!}$ 总是良定义的。因为任取 $k$ 个非空不交集合 $S_1,\dots S_k$，记 $\bigsqcup_{j=1}^k S_j = S$，此时 $S_1,\dots S_k$ 的 $k!$ 个置换均贡献给 $x^S$ 项的系数。因此我们不妨直接定义 $[x^S]\frac{G^k}{k!}$ 为对于全体将 $S$ 划分为 $k$ 个无序非空集合 $S_1,\dots S_k$ 的方案，对于 $\prod_{i=1}^k [x^{S_i}]G$ 求和。
 \end{definition}
 
-\begin{theorem}
+\begin{theorem} \label{setcomp}
 集合幂级数复合可以在 $\Theta(n^22^n)$ 时间内完成计算。
 \end{theorem}
 
-考虑 $\frac{\partial}{\partial x_n} (F \circ G) = F'(G)\frac{\partial}{\partial x_n} G$，故我们将其规约为 $n-1$ 的子问题，但要计算 $F$ 和 $F'$ 对其复合的结果。
+考虑 $\frac{\partial}{\partial x_n} (F \circ G) = F'(G)\frac{\partial}{\partial x_n} G$，故我们将其规约为 $n-1$ 规模的子问题，但要计算 $F$ 和 $F'$ 对其复合的结果。
 
-记 $G_k$ 为 $\left. G \right |_{x_n = \dots x_{n-k+1}=0}$，归纳可知，对于 $0\le k\le n$，我们需要解决 $F, F', \dots, F^{(k)}$ 复合 $G_k$ 这 $k+1$ 个规模为 $n-k$ 的复合问题。
+记 $G_k$ 为 $\left. G \right |_{x_n = \dots x_{n-k+1}=0}$，归纳可知，对于 $0\le k\le n$，我们需要解决 $F, F', \dots, F^{(k)}$ 复合 $G_k$ 这 $k+1$ 个规模为 $n-k$ 的复合问题。具体过程由下述伪代码给出：
 
-我们依此顺序计算，瓶颈为对于每个 $k$，我们进行了 $n-k$ 次 $k$ 元集合幂级数乘法，其复杂度可由和式 $\Theta \left(\sum_{k=0}^n k^2 2^k (n-k)\right)$ 表示。下面证明其复杂度就是 $\Theta(n^2 2^n)$。
+\begin{breakablealgorithm}
+  \caption{EGF Composite Set Power Series}
+  \begin{algorithmic}[1]
+    \REQUIRE A number $n$, EGF $F(x)=\sum_{k=0}^n f_n \frac{x^n}{n!}$, sequence $g[0\dots 2^n-1]$ denoting the set power serie
+
+    \FOR {$i=0\dots n$}
+      \STATE Let $h_{0,i} = [f_i]$
+    \ENDFOR
+    \FOR {$k=1\dots n$}
+      \FOR {$j=0\dots n-k$}
+        \STATE Let $h_{k,j}[0\dots 2^{k-1}-1] = h_{k-1,j}$
+        \STATE Let $h_{k,j}[2^{k-1}\dots 2^k-1] = h_{k-1,j+1} * g[2^{k-1}\dots 2^k-1]$
+      \ENDFOR
+    \ENDFOR
+    \RETURN $h_{n,0}[0\dots 2^n-1]$
+  \end{algorithmic}
+\end{breakablealgorithm}
+
+瓶颈为对于每个 $k$，我们进行了 $n-k$ 次 $k$ 元集合幂级数乘法，其复杂度可由和式 $\Theta \left(\sum_{k=0}^n k^2 2^k (n-k)\right)$ 表示。下面证明其复杂度就是 $\Theta(n^2 2^n)$。
 
 \begin{proof}
 经计算可得：
@@ -764,7 +883,7 @@ $$
 由此，该算法的复杂度为 $\Theta(n^2 2^n)$。
 \end{proof}
 
-事实上，这一方法具有极好的常数。对于集合幂 $\exp$ 来说，由于 $F'=F$，我们可以在迭代过程中减少一些维护，这种方法在常数上较进行 $2^n$ 次微分方程实现 $\Theta(n^2)$ 形式幂 $\exp$ 的方法效率更高。
+事实上，这一方法具有极好的常数。对于集合幂 $\exp$ 来说，由于 $F'=F$，我们可以在迭代过程中减少一些维护，这种方法在常数上较进行 $2^n$ 次微分方程实现 $\Theta(n^2)$ 形式幂 $\exp$ 的方法效率更高。实践显示，在部分根据 $F$ 针对性设计算法的问题，若其方法稍微复杂些，通法也会显著具有更好的常数\footnote{例：集合划分计数，\url{https://loj.ac/p/154}}。
 
 \begin{lemma}
 集合幂级数复合在插值转化的情形下可以 $\Theta(2^n\Mul(n))$ 完成计算。
@@ -781,7 +900,7 @@ $$T_G(x,y)=\sum_{A\subseteq E}(x-1)^{k(A)-k(E)}(y-1)^{k(A)+|A|-|V|}$$
 其中 $k(E)$ 表示图 $(V, E)$ 的连通分量数。
 \end{definition}
 
-接下来的几条资料显示了 Tutte 多项式与几个经典的图上计数问题的联系。由于篇幅所限，下面的几条引理仅述而不证。
+接下来的几条资料显示了 Tutte 多项式与几个经典的图上计数问题的联系。由于篇幅所限，下面的几条引理仅述而不证。证明可参看 \cite[X.4]{graph}
 
 \begin{definition}[色多项式]
 对于无向图 $G = (V, E)$，存在多项式 $P_G(k)$ 使得带入正整数 $k$ 时，$P_G(k)$ 的值表示 $G$ 的 $k$-染色方案。
@@ -806,18 +925,91 @@ $$(-1)^{|V|}P_G(-1)=T_G(2,0)$$
 由上述引理可见，Tutte 多项式统一了几个经典的图论计数问题，只要 Tutte 多项式的计算得到解决，则可以一并解决以上几个问题。
 
 \begin{theorem}
-设 $n=|G|$，带入一组 $x,y$，$T_G(x,y)$ 可以在 $\Theta(n^2 2^n)$ 时间内计算。
+设 $n=|G|$，带入一组 $x,y$，对于 $V$ 的全体子集 $V'$，设其导出子图\footnote{仅保留两端点均在 $V'$ 中的边}为 $G'=(V',E')$，$T_{G'}(x,y)$ 可以在总共 $\Theta(n^2 2^n)$ 的时间内计算。
 \end{theorem}
+
+注意到指数总是非负的，因此计算可以规避除法。接下来介绍一种在任意环 $\A$ 上都可进行的算法。
+
+易见若 $G'$ 有多个连通分支，则 $T_G'$ 等于各连通分支的 Tutte 多项式之乘积，不妨先求出全体 $G'$ 为连通图时的答案，其余部分即可调用子问题的乘积。首先考虑 $A$ 作为边集时 $G'$ 的各连通分支，对于连通分支 $S$，我们设该分支内在 $A$ 中的边集为 $B$，其权值为
+$$
+f_S(B)=(y-1)^{|B|-(|S|-1)}
+$$
+不难发现按照这种定义，$(x-1)^{k(A)-k(E)}(y-1)^{k(A)+|A|-|V|}$ 即为各连通分支的 $f$ 之乘积乘以 $(x-1)^{t-1}$，其中 $t$ 为连通分支的数量。因此若对于使得 $S$ 为连通分量的全体方案 $B$ 的 $f$ 值求和得到 $g_S$，Tutte 多项式的值即可表为
+$$
+[X^{V'}] \sum_{t\ge 1} (x-1)^{t-1}\frac{\left( \sum_{S\neq \varnothing} g_S X^S \right)^t}{t!}
+$$
+这可以直接通过调用定理 \ref{setcomp} 的算法解决。接下来只需考虑如何计算 $g_S$。
+
+考虑进行逐点牛顿迭代计算 $g$，对于 $S\ni n$，考虑删去 $n$ 后 $S$ 剩余节点构成的各连通分支，每个连通分支至少有一条连向 $n$ 的边在 $B$ 中，设总共向 $n$ 连有 $m$ 条边，则有 $y^m-1$ 种方案。故将所有 $S\not \ni n$ 的 $g_S$ 乘以各自对应的 $y^m-1$ 后对其生成函数进行集合幂 $\exp$，即得各 $S\cup \{n\}$ 项的值。
+
+综上所述，算法的时间复杂度为 $\Theta(n^22^n)$。
 
 \subsection{复合方程}
 
-\subsubsection{点双连通-连通变换}
+由于集合幂级数实为一种特殊的多元幂级数，因而我们可以照搬多元幂级数中所定义的树形复合方程以及多元 Lagrange 反演。由此我们可以在 $\tilde O(2^n)$ 时间内计算集合幂的树形复合方程中的一项。下面我们记 $f^S = \prod_{i\in S} f_i$。
 
-\begin{theorem}
-点双连通-连通变换可在 $\Theta(n^22^n\Mul(n))$ 时间内计算。
+\begin{theorem} \label{algocomp}
+对于由 $\mathbf G$ 定义的树形复合方程 $\mathbf F$，经过 $\Theta(n^42^n)$ 的预处理，给定 $H \in \A\{x_1,\dots,x_n\}$ 询问 $[x^S] H(\mathbf F)$ 可在 $\Theta(|S|^22^{|S|})$ 时间内完成。
 \end{theorem}
 
-这一算法首先由 \cite{b2c} 提出。
+一般情况而言的算法还是较为臃肿，但对于一些特殊情况，我们能够做到更好的复杂度。
+
+\subsubsection{对称复合方程}
+
+\begin{definition}[对称复合方程]
+存在集合幂级数 $\mathscr B$，其有值项皆满足度数 $\ge 2$，和一族指数生成函数 $g_1,\dots,g_n$ 使得
+$$
+G_i=g_i'\circ \frac{\partial}{\partial x_i} \mathscr B
+$$
+时，称由 $\mathbf G$ 定义的树形复合方程是\emph{对称}的。
+\end{definition}
+
+\begin{lemma}
+对于上述对称复合方程 $\mathbf F$，存在集合幂级数 $\mathscr C$ 使得
+$$
+g_i \circ \left(\frac{\partial}{\partial x_i}\mathscr B\right)\circ \mathbf F = \frac{\partial}{\partial x_i} \mathscr C
+$$
+\end{lemma}
+
+事实上，上述引理具有一个很强的组合直观，让我们来解释 $\mathscr B$ 与 $\mathscr C$ 的含义。
+
+$\mathscr C$ 的构成相当于对所有圆方树进行统计。其中对于 $[x^S]\mathscr C$ 而言，$S$ 描述了圆方树的圆点点集，而 $g_i$ 是对于 $i$ 号点的度数赋予的权重，而 $[x^S]\mathscr B$ 则描述了一个方点的邻接点集为 $S$ 时赋予的权重。
+
+\begin{theorem} \label{algosymmcomp}
+给出 $g_i$ 后，通过 $\mathscr B$ 计算 $\mathscr C$ 可在 $\Theta(n2^n\Mul(n))$ 时间内完成计算。
+\end{theorem}
+
+这一算法首先由 \cite{b2c} 提出。首先考虑一个朴素的情况，即 $g_i = x$，此时应有 $\mathscr C = \mathscr B$，因为一颗圆方树此时每个圆点都为叶子。而若 $g_1$ 是一般的，则说明与 $1$ 号节点相邻可以有多个方点，此时有 $\frac{\partial}{\partial x_1} \mathscr C = g_1 \circ \frac{\partial}{\partial x_1}\mathscr B$ 而其余部分保持不变。
+
+我们考虑进行一组变换 $\mathscr B = \mathscr T_0 \rightarrow \mathscr T_1\rightarrow \dots \rightarrow \mathscr T_n = \mathscr C$。在过程中的意图为将 $g_i$ 从皆为 $x$ 逐个改为输入。因此第 $i$ 步变换会根据 $g_i$ 进行组合 $i$ 号点相邻的方点，就有
+\begin{align*}
+\frac{\partial}{\partial x_i} \mathscr T_{i} &= g_i \circ \frac{\partial}{\partial x_i}\mathscr T_{i-1}\\
+\left.\mathscr T_i\right|_{x_i=0} &= \left.\mathscr T_{i-1}\right|_{x_i=0}
+\end{align*}
+此时 $\Theta(n^32^n)$ 复杂度已经昭然若揭，而注意到中间的变换我们可以始终在插值转化的结果下进行计算，在进行第 $i$ 次变换的时候，我们只需将第 $i$ 维还原，还原一维只需要 $\Theta(n2^n)$，因此瓶颈为进行 $n$ 次在插值转化下的集合幂级数复合问题。总共复杂度为 $n\cdot \Theta(2^n\Mul(n)) = \Theta(n2^n\Mul(n))$。
+
+虽然在实践中 $\Mul(n)$ 仅有必要实现为 $\Theta(n^2)$，但减少 M\"obius 变换的次数能够有效地降低算法的常数。
+
+\begin{lemma}
+对于 $V$ 的每个子集 $V'$ 的导出子图的点双连通子图数量可在 $\Theta(n2^n\Mul(n))$ 时间内计算。
+\end{lemma}
+
+定理 \ref{algosymmcomp} 所描述的算法在提出之初便是为了解决此问题，这一情况被命名为\emph{连通-点双连通变换}。注意到设 $\mathscr B$ 为点双连通子图的集合幂级数，则 $g_i = \exp x$ 时，$\mathscr C$ 为连通图的集合幂级数。注意到定理 \ref{algosymmcomp} 所描述的变换若每一步变换存在逆变换，则可以通过 $\mathscr C$ 逐步还原得到 $\mathscr B$，此处便有
+\begin{align*}
+\frac{\partial}{\partial x_i} \mathscr T_{i-1} &= \ln \circ \frac{\partial}{\partial x_i}\mathscr T_i\\
+\left.\mathscr T_{i-1}\right|_{x_i=0} &= \left.\mathscr T_i\right|_{x_i=0}
+\end{align*}
+复杂度为 $\Theta(n2^n\Mul(n))$。
+
+\begin{problem}[数仙人掌\footnote{来源：加强自 Ildar Gainullin，\url{https://loj.ac/p/6719}}]
+给出一个无向简单图 $G=(V,E)$，问有多少个边集的子集使得图连通，且每条边最多在一个简单环内。答案同余 $998244353$，保证 $n\le 18$。
+\end{problem}
+
+\begin{solution}
+考虑这样的图每个点双连通分量的结构，必然是一条边或一个回路。我们通过状态压缩 DP 不难在 $\Theta(k^22^k)$ 时间内计算出所有以 $k$ 为编号最大的点的点集 $S$ 上的回路数量。由此即可得到所有满足条件的点双连通分量的集合幂级数 $\mathscr B$，然后取 $g_i = \exp x$ 得到的 $\mathscr C$ 即为仙人掌的集合幂级数。复杂度瓶颈为计算点双连通-连通变换。
+\end{solution}
+
+值得一提的是，本题还有一些与定理 \ref{algocomp} 的算法中处理相近方法的做法，与上述做法在实践中的复杂度均为 $\Theta(n^32^n)$，但上述调用通法的解法反而表现出更好的常数。
 
 \section{指数生成函数}
 
@@ -869,7 +1061,7 @@ $v_p(n)-v_p(k)-v_p(n-k)$ 就是在 $p$ 进制下，$n$ 减去 $k$ 时所发生�
 对于多项式 $f(x)$ 和 EGF 形式的多项式 $g(x)$，设 $\mathrm{D} = \frac{\mathrm{d}}{\mathrm{d}x}$，可以在 $\Theta(n\log n \cdot \omega(M))$ 的时间内计算求导算子对多项式的乘法 $g(\mathrm{D}) \cdot f(x)$。
 \end{theorem}
 
-只需注意到将 $f(x)$ 的系数看做输入向量 $\mathbf f$，那么这一变换是「将 $f$ 与 $g$ 做二项卷积」的转置算法，我们对二项卷积的过程进行转置计算即可。
+只需注意到将 $f(x)$ 的系数看做输入向量 $\mathbf f$，那么这一变换是「将 $f$ 与 $g$ 做二项卷积」的\emph{转置算法}，我们对二项卷积的过程进行转置计算即可。
 
 \begin{lemma}
 对于多项式 $f(x)$，可以在 $\Theta(n\log n \cdot \omega(M))$ 时间内计算 $f(x+c)$ 同余 $M$ 的各项系数。
@@ -881,33 +1073,53 @@ $v_p(n)-v_p(k)-v_p(n-k)$ 就是在 $p$ 进制下，$n$ 减去 $k$ 时所发生�
 已知多项式 $f(x)$ 在 $0,\dots,n$ 下的点值（且在同余 $M$ 下存在且以此形式给出），可以在 $\Theta(n\log n \cdot \omega (M))$ 内求 $f(m),f(m+1),\dots,f(m+n)$ 在同余 $M$ 下的点值。
 \end{lemma}
 
-\section{狄利克雷生成函数}
-
-\begin{definition}
-令 $I = \mathbb Z \cap [0, n]$，对于 $i,j\in \IZ$，令
+考虑进行二项式反演 $g_n = \sum_k \binom n k f(k)(-1)^{n-k}$ 后即得 $f$ 的下降幂表示
 $$
-i\circ j = \begin{cases}
-ij & ij \le n\\
-0 & \mathrm{else}
-\end{cases}
+f(x) = \sum_{k\le n} g_k \binom x k
 $$
+因此我们首先可以通过一次二项卷积完成二项式反演，之后的第二次卷积是一个起点不太相同的二项卷积，但由于其中出现的组合数上标最大为 $n+m$，因此素因子幂次有 $p^k\le n+m$，可知进行类似转化后的值域被控制在 $n\cdot (n+m)M^2\le nM^3$ 内，四模数 NTT 的转化仍是可用的。
 
-定义在 $(I,\circ)$ 上的生成函数即为我们计算时取的狄利克雷生成函数（DGF）。
+% 事实上我们可以只进行一次卷积。考虑计算点值 $f(k)$ 经过两次变换对 $f(m)$ 的贡献，其为
+% \begin{align*}
+% &\quad\sum_{j\le n} \binom j k (-1)^{j-k} \binom m j\\
+% &=\sum_{j\le n} \binom m j [x^k](x-1)^j\\
+% &= [x^k] \sum_{j\le n} \binom m j (x-1)^j
+% \end{align*}
+% 设 $G(x)=\sum_{j\le n}\binom m j x^j$，不难验证 $G(x)$ 满足微分方程 $mG(x)=(1+x)G'(x) + m\binom {m-1}n x^n$，因而贡献 $F(x)=G(x-1)$，有
+% \begin{align*}
+% mF(x)&=xF'(x)+m\binom {m-1}n(x-1)^n\\
+% [x^k] mF(x)-xF'(x)&=[x^k]m\binom {m-1}n(x-1)^n\\
+% (m-k) [x^k] F(x)&= (-1)^{n-k} m \binom {m-1}n \binom n k\\
+% [x^k] F(x)&= (-1)^{n-k} \frac{m}{m-k} \binom {m-1}{m-n-1} \binom n k
+% \end{align*}
 
-另外，不同于其他生成函数记号，狄利克雷生成函数常记为 $F(s) = \sum_n \frac{a_n}{n^s}$。其序列卷积常称为狄利克雷卷积。
-\end{definition}
+% \section{狄利克雷生成函数}
 
-\subsection{卷积}
+% \begin{definition}
+% 令 $I = \mathbb Z \cap [0, n]$，对于 $i,j\in \IZ$，令
+% $$
+% i\circ j = \begin{cases}
+% ij & ij \le n\\
+% 0 & \mathrm{else}
+% \end{cases}
+% $$
 
-\begin{theorem}
-狄利克雷卷积可在 $\Theta(n\log n)$ 时间内\emph{在线}进行。
-\end{theorem}
+% 定义在 $(I,\circ)$ 上的生成函数即为我们计算时取的狄利克雷生成函数（DGF）。
 
-由于 $ij\le n$ 的 $(i,j)$ 数量仅有 $\Theta(n\log n)$ 个，只需预处理每个 $k$ 对应的所有 $i$ 即可。这一事实已为人熟知，在此不予赘述。
+% 另外，不同于其他生成函数记号，狄利克雷生成函数常记为 $F(s) = \sum_n \frac{a_n}{n^s}$。其序列卷积常称为狄利克雷卷积。
+% \end{definition}
+
+% \subsection{卷积}
+
+% \begin{theorem}
+% 狄利克雷卷积可在 $\Theta(n\log n)$ 时间内\emph{在线}进行。
+% \end{theorem}
+
+% 由于 $ij\le n$ 的 $(i,j)$ 数量仅有 $\Theta(n\log n)$ 个，只需预处理每个 $k$ 对应的所有 $i$ 即可。这一事实已为人熟知，在此不予赘述。
 
 \section{总结}
 
-本文中，我们简要勾勒出了生成函数计算时问题的主要分支、计算时的不同难度层次、以及解决对应的问题的部分纲领。然而吾生也有涯，而知也无涯，本文的理论还有无数的空缺之处以及开放性问题尚待解决。希望能有感兴趣的同学发挥愚公移山之精神，进一步完善生成函数计算的理论图景。
+本文中，我们简要勾勒出了生成函数计算时问题的主要分支、计算时的不同难度层次、以及解决对应的问题的部分纲领。然而吾生也有涯，而知也无涯，本文的理论还有无数的空缺之处以及开放性问题尚待解决。希望能有感兴趣的同学发挥愚公移山之精神，进一步完善生成函数计算的理论图景！
 
 \section*{致谢}
 
@@ -919,18 +1131,23 @@ $$
 
 感谢赵雨扬前辈与我讨论以及给予的启发，以及其对于集合幂级数等相关部分前瞻性的理解。
 
-感谢XX为本文审稿。
+感谢\textbf{看{\color{red}到这里的你}}为本文审稿。
 
 \begin{thebibliography}{99}
+\ifcont
+\addcontentsline{toc}{section}{参考文献}
+\fi
 \bibitem{polyfact} Kedlaya, Kiran \& Umans, Christopher. (2008). Fast Polynomial Factorization and Modular Composition. SIAM Journal on Computing. 40. \DOI{10.1137/08073408X}
 \bibitem{tellegen} 陈宇，赵雨扬，曾致远。(2020)。转置原理的简单介绍。IOI2020 中国国家集训队论文集。
+\bibitem{newton} 赵雨扬。($2018\sim 2020$)。关于优化形式幂级数计算的 Newton 法的常数。\url{https://negiizhao.blog.uoj.ac/blog/4671}
 \bibitem{relaxmul} Hoeven, Joris. (2007). New algorithms for relaxed multiplication. \DOI{10.1016/j.jsc.2007.04.004} 
 \bibitem{nimberpoly} 罗煜翔。(2020)。浅谈 Nimber 和多项式算法。IOI2020 中国国家集训队论文集。
 \bibitem{fastlinearrec} Bostan, A. \& Mori, Ryuhei. (2020). A Simple and Fast Algorithm for Computing the $N$-th Term of a Linearly Recurrent Sequence. \DOI{10.1137/1.9781611976496.14}
 \bibitem{zzq} 钟子谦。(2019)。两类递推数列的性质和应用。IOI2019 中国国家候选队论文集。
 %\bibitem{palg} Bostan, Alin and Christol, Gilles and Dumas, Philippe. (2016). Fast Computation of the $N$-th Term of an Algebraic Series over a Finite Prime Field. In Proceedings of the ACM on International Symposium on Symbolic and Algebraic Computation (ISSAC '16). Association for Computing Machinery, New York, NY, USA, 119–126. \DOI{10.1145/2930889.2930904}
-\bibitem{combenum} Goulden, Ian P., and David M. Jackson. Combinatorial Enumeration. 2004.
+\bibitem{combenum} Goulden, Ian P., and David M. Jackson. (2004). Combinatorial Enumeration.
 \bibitem{walk} 洪华敦。(2018)。《「WC2018」州区划分》解题报告。
 \bibitem{vfk} 吕凯风。(2015)。集合幂级数的性质与应用及其快速算法。IOI2015 中国国家候选队论文集。
+\bibitem{graph} Bollobás, Béla. (1998). Modern Graph Theory
 \bibitem{b2c} 赵雨扬。(2019)。《点双连通生成子图计数》题解。由马耀华同学代为撰写：\url{https://loj.ac/d/2668}
 \end{thebibliography}
