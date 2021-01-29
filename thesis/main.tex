@@ -241,7 +241,7 @@ $$
 \subsection{线性算子}
 
 \begin{definition}[微分型算子]
-对于生成函数环 $\mathfrak G[X]$，我们称作用在其上的一个线性算子 $\mathfrak D$ 是\emph{微分型}的，当且仅当其满足条件 $\forall f,g\in \mathfrak G[X] \Rightarrow \mathfrak D(fg) = f\mathfrak D g+g\mathfrak D f$。
+对于生成函数环 $\mathfrak G[X]$，我们称作用在其上的一个线性算子 $\mathfrak D$ 是\emph{微分型}的，当且仅当其满足 Leibniz 律 $\forall f,g\in \mathfrak G[X] \Rightarrow \mathfrak D(fg) = f\mathfrak D g+g\mathfrak D f$。
 \end{definition}
 
 这与我们常见的导数算子是符合的，由此我们容易得到以下推论：
@@ -338,7 +338,7 @@ $$
 $$
 \end{theorem}
 
-首先半在线卷积显然可以规约为在线卷积，接下来进行逆向规约。我们通过倍增来构造一种 $\Theta(\mathsf S(n))$ 计算在线卷积的算法：
+首先半在线卷积显然可以归约为在线卷积，接下来进行逆向归约。我们通过倍增来构造一种 $\Theta(\mathsf S(n))$ 计算在线卷积的算法：
 
 \begin{enumerate}
 \item 令 $m=\lfloor n/2\rfloor$，首先进行 $0\sim m$ 下标部分的在线卷积。
@@ -363,13 +363,13 @@ $$
 
 \subsubsection{在线方法}
 
-在线方法相较牛顿迭代法自由之处在于可以处理较为复杂的形式幂复合问题。简而言之，形式幂 $F(x)$ 若满足一个关于 $F,F',\dots,F^{(m)}$ 的多项式方程 $P(F,F',\dots,F^{(m)})=0$，可以基于这一方程，得到 $H=F\circ G$ 的一个方程 $Q(H,H',\dots,H^{(m)})=0$，进而通过该方程得到的递推式在线求解 $H$。具体地，$Q$ 可以通过如下方式给出：
+在线方法相较牛顿迭代法自由之处在于可以处理较为复杂的形式幂复合问题。简而言之，形式幂 $F(x)$ 若满足一个关于 $F,F',\dots,F^{(m)}$ 的多项式方程 $P(x,F,F',\dots,F^{(m)})=0$，可以基于这一方程，得到 $H=F\circ G$ 的一个多项式方程 $Q(H,H',\dots,H^{(m)},G^{(0)},\dots,G^{(m)})=0$，进而通过该方程得到的递推式在线求解 $H$。具体地，$Q$ 可以通过如下方式给出：
 \begin{enumerate}
 \item 依定义，有 $F(G(x)) = H(x)$。
 \item 由 $H'(x) = F'(G(x))G'(x)$，可将 $F'(G(x))$ 表示为 $\frac{H'}{G'(x)}$。
 \item 由 $H''(x) = F''(G(x))G'^2(x) + F'(G(x))G''(x)$，可将 $F''(G(x))$ 用 $H'$ 和 $H''$ 表示。
 \item 逐次递推，可将 $F^{(k)}(G(x))$ 用 $H,H',\dots,H^{(k)}$ 表示。
-\item 因此可将方程 $P$ 直接带入 $G(x)$，则有 $P(F(G(x)),F'(G(x)),\dots,F^{(m)}(x)) = 0$，将各项均替换为由 $H$ 表达的式子之后通分，即得方程 $Q$。
+\item 因此可将方程 $P$ 直接带入 $G(x)$，则有 $P(x,F(G(x)),F'(G(x)),\dots,F^{(m)}(G(x))) = 0$，将各项均替换为由 $H$ 表达的式子之后通分，即得方程 $Q$。
 \end{enumerate}
 
 \subsubsection{Lagrange 反演}
@@ -693,7 +693,7 @@ $$
 $$
 将其看做 EGF，则等式左侧描述的是 $m_i$ 颗以第 $i$ 种节点为根的有根树组成的森林，且第 $i$ 种节点共有 $k_i$ 个。而观察右侧，$\mathbf {x^m}\mathbf G^{\mathbf k}$ 的意图无非是先令每个节点任选其孩子集合，而这会导致一些有环的情况被统计进入，应当枚举环进行容斥。考虑设矩阵
 $$
-\mathbf M = \left(\delta_{i,j} - \frac{x_j}{G_i(\mathbf x)} \frac{\partial G_i (\mathbf x)}{\partial x_j}\right)_{i,j=1}^n
+\mathbf M = \left(\frac{x_j}{G_i(\mathbf x)} \frac{\partial G_i (\mathbf x)}{\partial x_j}\right)_{i,j=1}^n
 $$
 那么将原图的 $t$ 个点替换为一个长度为 $t$ 的环的方法则会被 $\operatorname{tr} \mathbf M^t$ 统计 $t$ 次，故单个环进行替代的生成函数由
 $$
@@ -781,7 +781,7 @@ $$
       \STATE Do M\"obius transform on $\mathbf G[2^i\dots 2^{i+1}-1]$
     \ENDFOR
     \STATE \textbf{function} DivideConquer($l, t$) \COMMENT {solve $[l, l+2^t)$}
-    \begin{ALC@g} % 烂招，因为 noithesis.cls 直接把 algorithms 引了，由于冲突没法用其他有 function 的库
+    \begin{ALC@g} % 强行调用缩进指令是因为 noithesis.cls 直接把 algorithms 引了，由于冲突没法用其他有 function 的库
     \IF {$t=0$}
       \STATE Let $b = \operatorname{\mathbf{popcount}}(l)$
       \STATE $f[l] \leftarrow (\mathbf F[l] \mathbf A^{-1})_b$ 
@@ -850,7 +850,7 @@ $$
 集合幂级数复合可以在 $\Theta(n^22^n)$ 时间内完成计算。
 \end{theorem}
 
-考虑 $\frac{\partial}{\partial x_n} (F \circ G) = F'(G)\frac{\partial}{\partial x_n} G$，故我们将其规约为 $n-1$ 规模的子问题，但要计算 $F$ 和 $F'$ 对其复合的结果。
+考虑 $\frac{\partial}{\partial x_n} (F \circ G) = F'(G)\frac{\partial}{\partial x_n} G$，故我们将其归约为 $n-1$ 规模的子问题，但要计算 $F$ 和 $F'$ 对其复合的结果。
 
 记 $G_k$ 为 $\left. G \right |_{x_n = \dots x_{n-k+1}=0}$，归纳可知，对于 $0\le k\le n$，我们需要解决 $F, F', \dots, F^{(k)}$ 复合 $G_k$ 这 $k+1$ 个规模为 $n-k$ 的复合问题。具体过程由下述伪代码给出：
 
@@ -930,7 +930,7 @@ $$(-1)^{|V|}P_G(-1)=T_G(2,0)$$
 
 注意到指数总是非负的，因此计算可以规避除法。接下来介绍一种在任意环 $\A$ 上都可进行的算法。
 
-易见若 $G'$ 有多个连通分支，则 $T_G'$ 等于各连通分支的 Tutte 多项式之乘积，不妨先求出全体 $G'$ 为连通图时的答案，其余部分即可调用子问题的乘积。首先考虑 $A$ 作为边集时 $G'$ 的各连通分支，对于连通分支 $S$，我们设该分支内在 $A$ 中的边集为 $B$，其权值为
+易见若 $G'$ 有多个连通分支，则 $T_{G'}$ 等于各连通分支的 Tutte 多项式之乘积，不妨先求出全体 $G'$ 为连通图时的答案，其余部分即可调用子问题的乘积。首先考虑 $A$ 作为边集时 $G'$ 的各连通分支，对于连通分支 $S$，我们设该分支内在 $A$ 中的边集为 $B$，其权值为
 $$
 f_S(B)=(y-1)^{|B|-(|S|-1)}
 $$
@@ -1053,7 +1053,7 @@ $v_p(n)-v_p(k)-v_p(n-k)$ 就是在 $p$ 进制下，$n$ 减去 $k$ 时所发生�
 模 $M$ 二项卷积可在 $\Theta(\R(n)\cdot \omega(M))$ 时间内在线进行。
 \end{theorem}
 
-经过 CRT 转化，我们将在线二项卷积转化为 $\omega(M)$ 个易于进行的 $M=p^k$ 形式的在线二项卷积。通过前述的四模数 NTT 规约，我们将在线二项卷积转化为四个同步进行的在线卷积。
+经过 CRT 转化，我们将在线二项卷积转化为 $\omega(M)$ 个易于进行的 $M=p^k$ 形式的在线二项卷积。通过前述的四模数 NTT 归约，我们将在线二项卷积转化为四个同步进行的在线卷积。
 
 通过此法，我们也可以较为高效地完成二项运算下的初等函数复合。
 
@@ -1067,7 +1067,7 @@ $v_p(n)-v_p(k)-v_p(n-k)$ 就是在 $p$ 进制下，$n$ 减去 $k$ 时所发生�
 对于多项式 $f(x)$，可以在 $\Theta(n\log n \cdot \omega(M))$ 时间内计算 $f(x+c)$ 同余 $M$ 的各项系数。
 \end{lemma}
 
-只需注意到 $f(x+c) = \mathrm{e}^{c\mathrm{D}} \cdot f(x)$ 即可规约到上述算法。
+只需注意到 $f(x+c) = \mathrm{e}^{c\mathrm{D}} \cdot f(x)$ 即可归约到上述算法。
 
 \begin{lemma}
 已知多项式 $f(x)$ 在 $0,\dots,n$ 下的点值（且在同余 $M$ 下存在且以此形式给出），可以在 $\Theta(n\log n \cdot \omega (M))$ 内求 $f(m),f(m+1),\dots,f(m+n)$ 在同余 $M$ 下的点值。
@@ -1131,7 +1131,11 @@ $$
 
 感谢赵雨扬前辈与我讨论以及给予的启发，以及其对于集合幂级数等相关部分前瞻性的理解。
 
-感谢\textbf{看{\color{red}到这里的你}}为本文审稿。
+感谢戴江齐同学与我讨论以及给予的启发。
+
+\ifcont
+感谢\textbf{看{\color{red}到这里的你}}。
+\fi
 
 \begin{thebibliography}{99}
 \ifcont
@@ -1148,6 +1152,6 @@ $$
 \bibitem{combenum} Goulden, Ian P., and David M. Jackson. (2004). Combinatorial Enumeration.
 \bibitem{walk} 洪华敦。(2018)。《「WC2018」州区划分》解题报告。
 \bibitem{vfk} 吕凯风。(2015)。集合幂级数的性质与应用及其快速算法。IOI2015 中国国家候选队论文集。
-\bibitem{graph} Bollobás, Béla. (1998). Modern Graph Theory
+\bibitem{graph} Bollob\'as, B\'ela. (1998). Modern Graph Theory
 \bibitem{b2c} 赵雨扬。(2019)。《点双连通生成子图计数》题解。由马耀华同学代为撰写：\url{https://loj.ac/d/2668}
 \end{thebibliography}
