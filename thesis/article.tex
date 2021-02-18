@@ -30,6 +30,12 @@
 \usepackage{algorithm}
 \usepackage{algorithmic}
 
+\usepackage{tikz}
+\usetikzlibrary{arrows,shapes}
+\pgfdeclarelayer{background}
+\pgfdeclarelayer{foreground}
+\pgfsetlayers{background,main,foreground}
+
 \tcbuselibrary{skins, breakable, theorems}
 
 % Will Robertson's fontspec.sty can be used to simplify font choices.

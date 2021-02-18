@@ -363,13 +363,32 @@ $$
 
 \subsubsection{在线方法}
 
-在线方法相较牛顿迭代法自由之处在于可以处理较为复杂的形式幂复合问题。简而言之，形式幂 $F(x)$ 若满足一个关于 $F,F',\dots,F^{(m)}$ 的多项式方程 $P(x,F,F',\dots,F^{(m)})=0$，可以基于这一方程，得到 $H=F\circ G$ 的一个多项式方程 $Q(H,H',\dots,H^{(m)},G^{(0)},\dots,G^{(m)})=0$，进而通过该方程得到的递推式在线求解 $H$。具体地，$Q$ 可以通过如下方式给出：
+在线方法相较牛顿迭代法自由之处在于可以处理较为复杂的形式幂复合问题。简而言之，形式幂 $F(x)$ 若满足一个关于 $F,F',\dots,F^{(m)}$ 的多项式方程 $P(x,F,F',\dots,F^{(m)})=0$，可以基于这一方程，进行其右复合或者复合逆的计算。
+
+\paragraph{形式幂右复合}
+
+给定 $G(x)$，我们可以得到 $H=F\circ G$ 的一个多项式方程
+$$Q(H,H',\dots,H^{(m)},G^{(0)},\dots,G^{(m)})=0$$
+进而通过该方程得到的递推式在线求解 $H$。具体地，$Q$ 可以通过如下方式给出：
 \begin{enumerate}
 \item 依定义，有 $F(G(x)) = H(x)$。
 \item 由 $H'(x) = F'(G(x))G'(x)$，可将 $F'(G(x))$ 表示为 $\frac{H'}{G'(x)}$。
 \item 由 $H''(x) = F''(G(x))G'^2(x) + F'(G(x))G''(x)$，可将 $F''(G(x))$ 用 $H'$ 和 $H''$ 表示。
 \item 逐次递推，可将 $F^{(k)}(G(x))$ 用 $H,H',\dots,H^{(k)}$ 表示。
 \item 因此可将方程 $P$ 直接带入 $G(x)$，则有 $P(x,F(G(x)),F'(G(x)),\dots,F^{(m)}(G(x))) = 0$，将各项均替换为由 $H$ 表达的式子之后通分，即得方程 $Q$。
+\end{enumerate}
+
+\paragraph{形式幂复合逆}
+
+对于复合逆 $F(G(x)) =x$，我们可以得到 $G$ 的一个多项式方程
+$$Q(x,G,G',\dots,G^{(m)})=0$$
+进而通过该方程得到的递推式在线求解 $G$。具体地，$Q$ 可以通过如下方式给出：
+\begin{enumerate}
+  \item 依定义，有 $F(G(x))=x$。
+  \item 两边求导可得 $F'(G(x))G'(x)=1$，即 $F'(G(x))=\frac 1{G'(x)}$。
+  \item 两边继续求导，可得 $F''(G(x))G'(x) = \frac{-G''(x)}{G'(x)^2}$。
+  \item 逐次递推，可将 $F^{(k)}(G(x))$ 用 $G,G',\dots,G^{(k)}$ 表示。
+  \item 因此可将方程 $P$ 直接带入 $G(x)$，则有 $P(x,F(G(x)),F'(G(x)),\dots,F^{(m)}(G(x))) = 0$，将各项均替换为前述式子之后通分，即得方程 $Q$。
 \end{enumerate}
 
 \subsubsection{Lagrange 反演}
@@ -544,7 +563,7 @@ $$
 
 %\subsubsection{小特征有限域代数幂级数}
 
-% 在利用 OGF 进行计数时，一大类问题的结果都在代数幂级数的范畴之内。例如表示一类网格路径数量的 Catalan 数 $C(x)=\frac{1-\sqrt{1-4x}}{2x}$、大 Schr\"oder 数 $G(x)=\frac{1-x-\sqrt{1-6x+x^2}}{2x}$、Motzkin 数 $M(x)=\frac{1-x-\sqrt{1-2x-3x^2}}{2x^2}$。在进行远处系数求值时，一种具有普遍性的方法是找到数列的一个整式递推式，这一方法在 \cite{zzq} 中已有阐述。然而整式递推式中往往有分母。若 $\A$ 取 $\operatorname{char} K = O(n)$ 的有限域，则大多会在分母中出现 $0$，导致整个方法的失效。
+%在利用 OGF 进行计数时，一大类问题的结果都在代数幂级数的范畴之内。例如表示一类网格路径数量的 Catalan 数 $C(x)=\frac{1-\sqrt{1-4x}}{2x}$、大 Schr\"oder 数 $G(x)=\frac{1-x-\sqrt{1-6x+x^2}}{2x}$、Motzkin 数 $M(x)=\frac{1-x-\sqrt{1-2x-3x^2}}{2x^2}$。在进行远处系数求值时，一种具有普遍性的方法是找到数列的一个整式递推式，这一方法在 \cite{zzq} 中已有阐述。然而整式递推式中往往有分母。若 $\A$ 取 $\operatorname{char} K = O(n)$ 的有限域，则大多会在分母中出现 $0$，导致整个方法的失效。
 
 %然而当有限域的特征 $p$ 较小时，这一条件引导我们发觉新的性质，其中最为关键的便是 Lucas 定理的一个推论。
 
@@ -667,10 +686,53 @@ $\Leftarrow$：逐条验证即可。$\Rightarrow$：只需考虑令 $c_j = \frac
 当我们讨论多元 Lagrange 反演时，首先注意到的就是无法对一个多元幂级数定义复合逆，因为多元幂级数需要带入多个参数而非一个。
 
 \begin{definition}[树形复合方程]
-对于 $G_i \in R[[\mathbf x]]$，其中 $\mathbf x = (x_1, x_2, \dots, x_n)$。且 $G_i(0) \neq 0$，那么令 $\mathbf F = (F_1, F_2, \dots, F_m)$ 满足 $F_i = x_i G_i (\mathbf F)$。记 $\mathbf F$ 是由 $\mathbf G$ 定义的一组\emph{树形复合方程}。
+对于 $G_i \in R[[\mathbf x]]$，其中 $\mathbf x = (x_1, x_2, \dots, x_n)$。且 $G_i(\mathbf 0) \neq 0$，那么令 $\mathbf F = (F_1, F_2, \dots, F_m)$ 满足 $F_i = x_i G_i (\mathbf F)$。记 $\mathbf F$ 是由 $\mathbf G$ 定义的一组\emph{树形复合方程}。
 \end{definition}
 
 称其为\emph{树形}是很形象的，若从 OGF 的角度审视，$\mathbf G$ 可以认为是给出了一族有根树的生成关系，它规定了对于第 $i$ 种节点，每种孩子集合的设置方案数。而 $F_i$ 就是规定以第 $i$ 种节点为根的有根树。
+
+例如图 \ref{figcomp} 所示是提取系数 $[x_1x_2x_3x_4x_5^2]F_1$ 时的贡献的其中一项，其贡献为 $([x_2x_3]G_1) \cdot ([x_4x_5^2]G_2) \cdot G_3(\mathbf 0)G_4(\mathbf 0)G_5(\mathbf 0)^2$。
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[>=latex']
+  \tikzstyle{n} = [draw,shape=circle,minimum size=2em,
+                      inner sep=0pt,fill=white!20]
+%%
+  \node (1) at (135.0bp,162.0bp) [n, thick] {$\mathbf 1$};
+  \node (2) at (99.0bp,90.0bp) [n] {$2$};
+  \node (3) at (171.0bp,90.0bp) [n] {$3$};
+  \node (4) at (27.0bp,18.0bp) [n] {$4$};
+  \node (5) at (99.0bp,18.0bp) [n] {$5_1$};
+  \node (6) at (171.0bp,18.0bp) [n] {$5_2$};
+  \draw [->] (1) -- (2);
+  \draw [->] (1) -- (3);
+  \draw [->] (2) -- (4);
+  \draw [->] (2) -- (5);
+  \draw [->] (2) -- (6);
+%%
+  \node[left=1em] at (1.west)  (c1) {$[x_2x_3]G_1$};
+  \node[left=1em] at (2.west)  (c2) {$[x_4x_5^2]G_2$};
+  \node[right=1em] at (3.east)  (c3) {$G_3(\mathbf 0)$};
+  \node[left=1em] at (4.west)  (c4) {$G_4(\mathbf 0)$};
+  \node[left=0.4em] at (5.west)  (c5) {$G_5(\mathbf 0)$};
+  \node[left=0.4em] at (6.west)  (c6) {$G_5(\mathbf 0)$};
+  \begin{pgfonlayer}{background}
+    \draw[rounded corners=2em,line width=3em,green!20,cap=round, draw opacity=0.8]
+            (2.center) -- (4.center);
+    \draw[rounded corners=2em,line width=3em,green!20,cap=round, draw opacity=0.8]
+            (2.center) -- (5.center);
+    \draw[rounded corners=2em,line width=3em,green!20,cap=round, draw opacity=0.8]
+            (2.center) -- (6.center);
+            
+    \draw[rounded corners=2em,line width=3em,blue!20,cap=round, draw opacity=0.8]
+            (1.center) -- (2.center);
+    \draw[rounded corners=2em,line width=3em,blue!20,cap=round, draw opacity=0.8]
+            (1.center) -- (3.center); 
+    \end{pgfonlayer}
+\end{tikzpicture}
+\caption{树形复合方程~示例}\label{figcomp}
+\end{figure}
 
 \begin{theorem}[多元 Lagrange]\label{multilag}
 对于 $H \in R((\mathbf x))$ 和由 $\mathbf G$ 定义的树形复合方程 $\mathbf F$，记 $\mathbf x^{\mathbf k} = x_1^{k_1} x_2^{k_2} \cdots x_n^{k_n}$。有
@@ -1148,7 +1210,7 @@ $$
 \bibitem{nimberpoly} 罗煜翔。(2020)。浅谈 Nimber 和多项式算法。IOI2020 中国国家集训队论文集。
 \bibitem{fastlinearrec} Bostan, A. \& Mori, Ryuhei. (2020). A Simple and Fast Algorithm for Computing the $N$-th Term of a Linearly Recurrent Sequence. \DOI{10.1137/1.9781611976496.14}
 \bibitem{zzq} 钟子谦。(2019)。两类递推数列的性质和应用。IOI2019 中国国家候选队论文集。
-%\bibitem{palg} Bostan, Alin and Christol, Gilles and Dumas, Philippe. (2016). Fast Computation of the $N$-th Term of an Algebraic Series over a Finite Prime Field. In Proceedings of the ACM on International Symposium on Symbolic and Algebraic Computation (ISSAC '16). Association for Computing Machinery, New York, NY, USA, 119–126. \DOI{10.1145/2930889.2930904}
+\bibitem{palg} Bostan, Alin and Christol, Gilles and Dumas, Philippe. (2016). Fast Computation of the $N$-th Term of an Algebraic Series over a Finite Prime Field. In Proceedings of the ACM on International Symposium on Symbolic and Algebraic Computation (ISSAC '16). Association for Computing Machinery, New York, NY, USA, 119–126. \DOI{10.1145/2930889.2930904}
 \bibitem{combenum} Goulden, Ian P., and David M. Jackson. (2004). Combinatorial Enumeration.
 \bibitem{walk} 洪华敦。(2018)。《「WC2018」州区划分》解题报告。
 \bibitem{vfk} 吕凯风。(2015)。集合幂级数的性质与应用及其快速算法。IOI2015 中国国家候选队论文集。
