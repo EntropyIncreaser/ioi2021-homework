@@ -391,6 +391,89 @@ $$Q(x,G,G',\dots,G^{(m)})=0$$
   \item 因此可将方程 $P$ 直接带入 $G(x)$，则有 $P(x,F(G(x)),F'(G(x)),\dots,F^{(m)}(G(x))) = 0$，将各项均替换为前述式子之后通分，即得方程 $Q$。
 \end{enumerate}
 
+下面我们通过一个经典问题来帮助读者确认，如何系统性地将生成函数的方程改写为计算方法。
+
+\begin{problem}[无标号有根树]
+重量为 $k$ 的节点有 $a_k$ 种，问有多少种无标号有根树满足所有节点的重量之和为 $n$。保证 $1\le n\le 10^5$，同余 $998244353$。
+\end{problem}
+
+\begin{solution}
+首先根据符号化方法的理论，设节点的生成函数为 $A(x) = \sum_k a_kx^k$，可以立即列出生成函数方程 $T(x) = A(x) \exp \left(\frac{T(x^k)}{k}\right)$。
+
+首先，注意到当已经确认 $T(x)$ 的 $\le n-1$ 次项，就唯一确定了这一表达式的 $n$ 次项，进而得到 $T(x)$ 的 $n$ 次项。我们将等式右侧拆解为表达式树的结构，形如图 \ref{figexpr}，我们只需将表达式中的各运算问题逐个击破。
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[grow=left]
+\tikzset{level distance=60pt}
+\Tree [
+.mul
+  [.$A(x)$ ]
+  [.$\exp$ [.$\displaystyle\sum_{k\ge1}\frac{\cdot(x^k)}{k}$ $T(x)$ ] ]
+]
+\end{tikzpicture}
+\caption{表达式树}\label{figexpr}
+\end{figure}
+
+其中，mul 无非半在线卷积，而 $\sum_{k\ge1}\frac{\cdot(x^k)}{k}$ 实非瓶颈，只需再考察如何在线地计算 $\exp$。我们考虑 $\me^x$ 满足微分方程 $(\me^x)'=\me^x$，因此设 $G=\me^F$，可得微分方程 $G'=GF'$。只需知晓 $G$ 的 $\le n-1$ 次项以及 $F$ 的 $\le n$ 次项即可得到 $G$ 的 $n$ 次项。
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[node distance=5mm and 5mm,
+src/.style={
+rectangle,
+minimum size=6mm,
+very thick,
+draw=green!50!black!50,fill=white},
+data/.style={
+rectangle,
+minimum size=6mm,
+very thick,
+draw=blue!50!black!50,fill=white},
+op/.style={
+rounded rectangle,
+minimum size=6mm,
+thick,draw=black,fill=white},
+skip loop/.style={to path={-- ++(0,#1) -| (\tikztotarget)}},
+thick,
+every new ->/.style={shorten >=1pt},
+graphs/every graph/.style={edges=rounded corners},
+hv path/.style={to path={-| (\tikztotarget)}},
+vh path/.style={to path={|- (\tikztotarget)}}
+]
+
+\matrix[row sep=1mm,column sep=5mm] {
+&&&&&&&& \node [src] (a) {$A(x)$}; \\
+&& \node (a2) {}; &&&&&&&& \node [op] (mul2) {mul}; & \node [data] (fint) {$T(x)$}; & \node (p1) {};\\
+\node [src] (srct) {$T(x)$}; &
+\node [op] (ops) {$\displaystyle\sum_{k\ge1}\frac{\cdot(x^k)}{k}$}; &&
+\node [data] (p1) {$P_1(x)$}; &
+\node [op] (opd) {$\mathrm{D}$}; &
+\node [data] (p1d) {$P_1'(x)$}; & \node (a1) {}; &
+\node [op] (mul1) {mul}; &
+\node [data] (p2) {$P_2(x)$};\\
+&&&&&&&&& \node (a3) {}; &\\
+};
+
+\graph {
+  (srct) -> (ops) -> (p1) -> (opd) -> (p1d) -> (mul1) -> (p2) ->[hv path] (mul2);
+  (a) ->[hv path] (mul2) -> (fint);
+  (fint) ->[skip loop=-25mm] (srct);
+  (p2) ->[skip loop=-7mm] (a1);
+};
+
+\begin{pgfonlayer}{background} 
+  \path[fill=red!20,draw=red!50,thick]
+    (a2.south) rectangle
+    (a3);
+  \path (a2.north) -- (a3.north) node[midway,above=1mm] {$\exp$};
+\end{pgfonlayer}
+\end{tikzpicture}
+\caption{计算过程}\label{figdiag}
+\end{figure}
+
+\end{solution}
+
 \subsubsection{Lagrange 反演}
 
 对于一元生成函数来说，Lagrange 反演有效地将一个生成函数与其复合逆的系数建立起了联系。为体现形式的优美性，我们需在形式 Laurent 级数下描述 Lagrange 反演。本文中只展示一个在特征为 $0$ 的域上的证明方法，在一般环上的通用证明可参看 \cite[Sec. 1.2]{combenum}。
@@ -444,6 +527,7 @@ F(G(x))^k &= x^k\\
 n[x^n] F^k &= [x^{-1}]kx^{k-1}G^{-n}\\ 
 n[x^n] F^k &= k[x^{-k}]G^{-n}
 \end{align*}
+
 故原式得证。
 \end{proof}
 
@@ -536,6 +620,7 @@ $$
 &\equiv [x^{n_1p+s}] \frac 1{1-mx^p}(1-(m-1)x^p)^{m_1} (f(x)(1-mx)^{p-1}(1-(m-1)x)^r)\\
 &\equiv [x^{n_1}] \frac 1{1-mx}(1-(m-1)x)^{m_1} f_1(x)
 \end{align*}
+
 其中 $f_1(x)$ 是 $f(x)(1-mx)^{p-1}(1-(m-1)x)^r$ 提取同余 $p$ 余 $s$ 的下标系数所得，可以在 $\Theta(p\cdot \deg f)$ 内计算，归纳可知在 $f\leftarrow f_1$ 这一迭代过程中，始终有 $\deg f \le 1$。因此复杂度为单轮复杂度 $\Theta(p)$ 乘以迭代轮数 $\log_p n$，即 $\Theta(p\log_p n)$。
 \end{solution}
 
@@ -549,10 +634,12 @@ $$
 $$
 \frac {P(x)}{Q(x)} = \frac{P(x)Q(-x)}{Q(x)Q(-x)}
 $$
+
 我们注意记 $V(x)=Q(x)Q(-x)$，分析系数可以发现 $V(x)$ 只有偶次项有值，因此我们就得到了分解
 $$
 \frac{P(x)}{Q(x)} = \frac {E(x^2)}{U(x^2)} + x\frac {O(x^2)}{U(x^2)}, \quad U(x^2)=Q(x)Q(-x)
 $$
+
 因为这分别填满了二进制的 $0$ 和 $1$ 位，所以我们只需递归到一侧即可。而 $n \leftarrow \lfloor n/2 \rfloor$。
 
 因此每轮都在 $\Theta(\Mul(k))$ 时间内完成计算，进行 $\log_2 n$ 轮迭代后，已经有 $n=0$，故算法复杂度为 $\Theta(\Mul(k)\log n)$。
@@ -608,14 +695,17 @@ $$
 $$
 \tilde F = \sum_{i_1=0}^{n_1-1} \cdots \sum_{i_k=0}^{n_k-1} f_{i_1,\dots,i_k} x_1^{i_1}\cdots x_k^{i_k} t^{\sum_{l=1}^k i_l}
 $$
+
 我们称 $t$ 为\emph{占位元}，关于 $t$ 的多项式称为\emph{占位多项式}。称\emph{插值变换}将 $\tilde F$ 转化为 $\{\dot f_{i_1,\dots,i_k}(t)\}$，有
 $$
 \dot f_{i_1,\dots,i_k}(t) = \tilde F(\alpha^{(1)}_{i_1},\dots,\alpha^{(k)}_{i_k},t)
 $$
+
 若需计算 $F\times G$，只需将其插值转化为 $\dot f, \dot g$ 后逐项点乘，关于 $t$ 卷积，再施插值转化的逆变换，所得 $\tilde H$ 满足
 $$
 [x_1^{i_1}\cdots x_k^{i_k}] (F\times G) = \left[x_1^{i_1}\cdots x_k^{i_k}t^{\sum_{l=1}^k i_l}\right] \tilde H
 $$
+
 若记 $d = \sum_{l=1}^k (n_l-1)$，可见上述算法在最好情况下具有 $\Theta(\Mul(n)d + \Mul(d)n)$ 的复杂度，但其条件苛刻，且在 $d$ 大时不具有优势。但通过另一种构造，我们可以得到一种极优的复杂度：
 
 \begin{theorem}
@@ -626,6 +716,7 @@ $$
 $$
 i = i_1 + i_2\cdot n_1 + \cdots + i_k \cdot n_1\cdots n_{k-1}
 $$
+
 显见，原本的下标运算对应于映射后\emph{未发生进位}的加法。
 
 \begin{definition}[进位占位元]
@@ -633,6 +724,7 @@ $$
 $$
 \chi(i) = \left\lfloor \frac{i}{n_1}\right\rfloor + \left\lfloor \frac{i}{n_1n_2}\right\rfloor + \cdots + \left\lfloor \frac{i}{n_1\cdots n_{k-1}}\right\rfloor
 $$
+
 由此函数衍生的进位占位元 $t$ 得到其占位多项式 $\tilde F = \sum_i f_i x^i t^{\chi (i)}$。
 \end{definition}
 
@@ -641,6 +733,7 @@ $$
 $$
 0\le \chi(i) + \chi(j) - \chi(i+j) \le k-1
 $$
+
 其中 $0\le $ 取等当且仅当 $i,j$ 相加时不进位。
 \end{lemma}
 
@@ -753,7 +846,49 @@ $$
 \delta_{i,j} - \frac{x_j}{G_i(\mathbf x)} \frac{\partial G_i (\mathbf x)}{\partial x_j}
 \right \|
 $$
-将其看做 EGF，则等式左侧描述的是 $m_i$ 颗以第 $i$ 种节点为根的有根树组成的森林，且第 $i$ 种节点共有 $k_i$ 个。而观察右侧，$\mathbf {x^m}\mathbf G^{\mathbf k}$ 的意图无非是先令每个节点任选其孩子集合，而这会导致一些有环的情况被统计进入，应当枚举环进行容斥。考虑设矩阵
+将其看做 EGF，则等式左侧描述的是 $m_i$ 颗以第 $i$ 种节点为根的有根树组成的森林，且第 $i$ 种节点共有 $k_i$ 个。而观察右侧，$\mathbf {x^m}\mathbf G^{\mathbf k}$ 的意图无非是先令每个节点任选其孩子集合，而这会导致一些形如图 \ref{figcyc} 的有环的情况被统计进入，应当枚举环进行容斥。
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[>=latex', scale=0.8]
+  \tikzstyle{n} = [draw,shape=circle,minimum size=2em,
+                      inner sep=0pt,fill=white!20]
+%%
+  \node (1) at (123.49bp,103.74bp) [n] {$1$};
+  \node (2) at (123.49bp,207.94bp) [n] {$2$};
+  \node (3) at (213.73bp,155.84bp) [n] {$3$};
+  \node (4) at (73.993bp,18.0bp) [n] {$4$};
+  \node (5) at (133.29bp,313.7bp) [n] {$5$};
+  \node (6) at (27.0bp,252.33bp) [n] {$6$};
+  \node (7) at (312.73bp,155.84bp) [n] {$7$};
+  \draw [->, red, thick] (1) -- (2);
+  \draw [->, red, thick] (2) -- (3);
+  \draw [->, red, thick] (3) -- (1);
+  \draw [->] (1) -- (4);
+  \draw [->] (2) -- (5);
+  \draw [->] (2) -- (6);
+  \draw [->] (3) -- (7);
+%%
+  \begin{pgfonlayer}{background}
+    \draw[rounded corners=2em,line width=3em,green!20,cap=round, draw opacity=0.8]
+      (1.center) -- (4.center);
+    \draw[rounded corners=2em,line width=3em,green!20,cap=round, draw opacity=0.8]
+      (1.center) -- (2.center);
+    \draw[rounded corners=2em,line width=3em,blue!20,cap=round, draw opacity=0.8]
+      (2.center) -- (3.center);
+    \draw[rounded corners=2em,line width=3em,blue!20,cap=round, draw opacity=0.8]
+      (2.center) -- (5.center);
+    \draw[rounded corners=2em,line width=3em,blue!20,cap=round, draw opacity=0.8]
+      (2.center) -- (6.center);
+    \draw[rounded corners=2em,line width=3em,red!20,cap=round, draw opacity=0.8]
+      (3.center) -- (1.center);
+    \draw[rounded corners=2em,line width=3em,red!20,cap=round, draw opacity=0.8]
+      (3.center) -- (7.center);
+    \end{pgfonlayer}
+\end{tikzpicture}
+\caption{成环~示例}\label{figcyc}
+\end{figure}
+
+考虑设矩阵
 $$
 \mathbf M = \left(\frac{x_j}{G_i(\mathbf x)} \frac{\partial G_i (\mathbf x)}{\partial x_j}\right)_{i,j=1}^n
 $$
@@ -779,6 +914,7 @@ $$
 &= \frac 1{n_1}\left[\frac{x_1^{n_1}}{n_1!}\dots\frac{x_k^{n_k}}{n_k!}\right] x_1\exp\left(\sum_{i,j} n_ia_{i,j}x_j\right) \left \| \delta_{i,j}-a_{i,j}x_j \right\|\\
 &= \left[\frac{x_1^{n_1-1}}{(n_1-1)!}\frac{x_2^{n_2}}{n_2!}\dots\frac{x_k^{n_k}}{n_k!}\right] \exp\left(\sum_{i,j} n_ia_{i,j}x_j\right) \left \| \delta_{i,j}-a_{i,j}x_j \right\|
 \end{align*}
+
 注意此时求行列式的第 $j$ 列只和 $x_j$ 有关，因此我们在算行列式的时候显然在确认第 $j$ 列选谁的时候就得到 $x_j$ 次幂部分的系数，设 $d_j=\sum_i n_ia_{i,j}$，那么对于 $j\ge 2$，我们可以直接将矩阵的第 $(i,j)$ 项替换为 $\left[\frac{x_j^{n_j}}{n_j!}\right] \exp (d_jx_j)(\delta_{i,j} - a_{i,j}x_j) = \delta_{i,j} d_j^{n_j} - a_{i,j} n_j d_j^{n_j-1}$；对于 $j=1$，替换为 $\left[\frac{x_1^{n_1-1}}{(n_1-1)!}\right] \exp (d_1x_1)(\delta_{i,1} - a_{i,1}x_1) = \delta_{i,1} d_1^{n_1-1} - a_{i,1} (n_1-1) d_1^{n_1-2}$。\footnote{由于指数来源于对 $\exp$ 的系数提取，这里 $b<0$ 时应当有 $a^b=0$。}因此我们直接计算这个矩阵的行列式即可得到答案。
 \end{solution}
 
@@ -1037,6 +1173,49 @@ $$
 
 $\mathscr C$ 的构成相当于对所有圆方树进行统计。其中对于 $[x^S]\mathscr C$ 而言，$S$ 描述了圆方树的圆点点集，而 $g_i$ 是对于 $i$ 号点的度数赋予的权重，而 $[x^S]\mathscr B$ 则描述了一个方点的邻接点集为 $S$ 时赋予的权重。
 
+如图 \ref{figsym} 所示是提取系数 $[x^{\{1,2,3,4,5,6\}}]\mathscr C$ 中的一项，其贡献为 $([x^{\{1,2,3\}}]\mathscr B)\cdot([x^{\{2,4\}}]\mathscr B)\cdot([x^{\{2,5,6\}}]\mathscr B)\cdot([\frac{x^3}{3!}]g_3)\cdot \prod_{i\in \{1,3,4,5,6\}}([\frac{x^1}{1!}]g_i)$。
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[>=latex', scale=0.8]
+    % set node style
+    \tikzstyle{cir} = [draw,shape=circle,minimum size=2em,
+                        inner sep=0pt,fill=white!20]
+    \tikzstyle{blo} = [draw,shape=rectangle,minimum size=2em,
+                        inner sep=0pt,fill=white!20,rounded corners]
+%%
+    \node (A) at (165.09bp,230.76bp) [blo] {$A$};
+    \node (1) at (105.97bp,284.26bp) [cir] {$1$};
+    \node (2) at (167.23bp,147.3bp) [cir] {$2$};
+    \node (3) at (216.36bp,291.6bp) [cir] {$3$};
+    \node (B) at (94.516bp,109.79bp) [blo] {$B$};
+    \node (4) at (27.0bp,74.756bp) [cir] {$4$};
+    \node (C) at (234.03bp,97.214bp) [blo] {$C$};
+    \node (5) at (313.33bp,103.55bp) [cir] {$5$};
+    \node (6) at (243.22bp,18.0bp) [cir] {$6$};
+    \draw [] (A) -- (1);
+    \draw [] (A) -- (2);
+    \draw [] (A) -- (3);
+    \draw [] (B) -- (2);
+    \draw [] (B) -- (4);
+    \draw [] (C) -- (2);
+    \draw [] (C) -- (5);
+    \draw [] (C) -- (6);
+%
+    \node[left=0.5em] at (2.west)  (c2) {$[\frac{x^3}{3!}]g_3$};
+    \node[left=0.5em] at (A.west)  (cA) {$[x^{\{1,2,3\}}]\mathscr B$};
+    \node[left=0.5em] at (B.west)  (cB) {$[x^{\{2,4\}}]\mathscr B$};
+    \node[left=0.5em] at (C.west)  (cC) {$[x^{\{2,5,6\}}]\mathscr B$};
+    \begin{pgfonlayer}{background}
+      \tikzstyle{e} = [rounded corners=2em,line width=3mm,cap=round, draw opacity=0.8]
+      \fill[e,green!20] (1.center) -- (2.center) -- (3.center) -- cycle;
+      \fill[e,blue!20] (2.center) -- (B.west) -- (4.center) -- (B.east) -- cycle;
+      \fill[e,red!20] (2.center) -- (5.center) -- (6.center) -- cycle;
+    \end{pgfonlayer}
+\end{tikzpicture}
+\caption{对称复合方程~示例}\label{figsym}
+\end{figure}
+
 \begin{theorem} \label{algosymmcomp}
 给出 $g_i$ 后，通过 $\mathscr B$ 计算 $\mathscr C$ 可在 $\Theta(n2^n\Mul(n))$ 时间内完成计算。
 \end{theorem}
@@ -1139,6 +1318,7 @@ $v_p(n)-v_p(k)-v_p(n-k)$ 就是在 $p$ 进制下，$n$ 减去 $k$ 时所发生�
 $$
 f(x) = \sum_{k\le n} g_k \binom x k
 $$
+
 因此我们首先可以通过一次二项卷积完成二项式反演，之后的第二次卷积是一个起点不太相同的二项卷积，但由于其中出现的组合数上标最大为 $n+m$，因此素因子幂次有 $p^k\le n+m$，可知进行类似转化后的值域被控制在 $n\cdot (n+m)M^2\le nM^3$ 内，四模数 NTT 的转化仍是可用的。
 
 % 事实上我们可以只进行一次卷积。考虑计算点值 $f(k)$ 经过两次变换对 $f(m)$ 的贡献，其为
