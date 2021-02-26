@@ -38,6 +38,7 @@
 \providecommand*{\unit}[1]{\ensuremath{\mathrm{\,#1}}}
 \newcommand{\di}{\ensuremath{\mathrm{\,d}}}
 \newcommand{\Mul}{\ensuremath{\mathsf M}}
+\newcommand{\me}{\ensuremath{\mathrm e}}
 
 
 % \setsansfont{TeX Gyre Heros}
@@ -156,6 +157,65 @@ $$
 \paragraph{点评}
 
 上述的两种方法最后均是将问题转为计算一个一阶微分方程，那么可否通过其通解在 $\Theta(n\log n)$ 内完成计算呢？在推导过程中我们会发现有一些困难，以法一中的式子为例：
+
+\newpage
+
+\section{Permutation}
+
+\paragraph{简要题意} 对于 $1\le n\le N$，求出所有 $f_n \bmod M$，其中 $f_n$ 表示有多少个 $n$ 阶排列 $p$ 存在 $p_i=i$ 也存在 $p_j=n-j+1$。
+
+保证 $N\le 10^7$ 且 $N+1\le P\le 10^9$。
+
+\paragraph{解法} 设这两个条件是 $P_1,P_2$，那么 $\neg P_1$ 看起来是更自然的，也就是 $\forall i,p_i\neq i$。其中 $\neg P_1$ 和 $\neg P_2$ 都是错排列的数量，我们还要算 $\forall i, (p_i \neq i) \wedge (p_i \neq n-i+1)$，这是问题的关键。
+
+我们对每个 $(i,i)$ 和 $(i,n-i+1)$ 容斥，那么需要共同考虑 $i$ 和 $n-i+1$，其中强制选一个有 $4$ 种方法，强制选两个有 $2$ 种方法。这里我们需要考虑 $n$ 的奇偶性。
+
+\begin{itemize}
+\item 对于 $n=2k$，那么方案数即为 $(x^2-4x+2)^k$ 点乘 $\sum_{n\ge 0} n! x^n$。
+\item 对于 $n=2k+1$，那么方案数即为 $(x^2-4x+2)^k(x-1)$ 点乘 $\sum_{n\ge 0} n! x^n$。
+\end{itemize}
+
+考虑 Euler 积分：
+$$
+\int_0^\infty x^n \me^{-x} \di x = n!
+$$
+
+那么设积分
+\begin{align*}
+I_n &= \int_0^\infty (x^2-4x+2)^n \me^{-x} \di x\\
+J_n &= \int_0^\infty x(x^2-4x+2)^n \me^{-x} \di x
+\end{align*}
+
+那么
+\begin{itemize}
+\item 对于 $n=2k$，方案数即为 $I_k$。
+\item 对于 $n=2k+1$，方案数即为 $J_k - I_k$。
+\end{itemize}
+
+由分部积分可知，$I_n$ 可进行递推：
+\begin{align*}
+I_n &= \int_0^\infty (x^2-4x+2)^n \me^{-x}\di x\\
+ &= -\int_0^\infty (x^2-4x+2)^n \di (\me^{-x})\\
+ &= \left. -(x^2-4x+2)^n \me^{-x} \right |_0^\infty + \int_0^\infty \me^{-x} \di \left[ (x^2-4x+2)^n \right]\\
+ &= 2^n + \int_0^\infty n(x^2-4x+2)^{n-1}(2x-4)\me^{-x} \di x\\
+ &= 2^n + 2nJ_{n-1} - 4nI_{n-1}
+\end{align*}
+
+类似地，$J_n$ 可进行递推：
+\begin{align*}
+J_n &= \int_0^\infty x(x^2-4x+2)^n \me^{-x} \di x\\
+ &= -\int_0^\infty x(x^2-4x+2)^n \di (\me^{-x})\\
+  &= \left. -x(x^2-4x+2)^n \me^{-x} \right |_0^\infty + \int_0^\infty \me^{-x} \di \left[ x(x^2-4x+2)^n \right]\\
+   &= \int_0^\infty \left[ (x^2-4x+2)^n + nx(x^2-4x+2)^{n-1}(2x-4) \right]\me^{-x} \di x\\
+   &= I_n + \int_0^\infty 2n(x^2-4x+2)^{n-1}(x^2-2x)\di x\\
+   &= I_n + \int_0^\infty 2n(x^2-4x+2)^{n-1}[(x^2-4x+2)+2x-2]\di x\\
+   &= I_n + 2n (I_n + 2J_{n-1} - 2I_{n-1})\\
+   &= (2n+1) I_n + 4nJ_{n-1} - 4nI_{n-1}
+\end{align*}
+
+由此，整个问题 $\Theta(n)$ 解决。
+
+\paragraph{点评} 对于更一般的问题来说，微分有限性来源于微分有限复合代数幂级数。也就是说对于微分有限的生成函数 $P$，和次数有限的有理分式 $Q$，$Q^n$ 与 $P$ 点乘的结果是关于 $n$ 微分有限的。
 
 \newpage
 

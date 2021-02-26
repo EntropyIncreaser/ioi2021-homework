@@ -17,7 +17,7 @@
      \refstepcounter{algorithm}% New algorithm
      \hrule height.8pt depth0pt \kern2pt% \@fs@pre for \@fs@ruled
      \renewcommand{\caption}[2][\relax]{% Make a new \caption
-       {\raggedright\textbf{\ALG@name~\thealgorithm} ##2\par}%
+       {\raggedright\textbf{\ALG@name~\thealgorithm} \sc##2\par}%
        \ifx\relax##1\relax % #1 is \relax
          \addcontentsline{loa}{algorithm}{\protect\numberline{\thealgorithm}##2}%
        \else % #1 is not \relax
@@ -398,7 +398,7 @@ $$Q(x,G,G',\dots,G^{(m)})=0$$
 \end{problem}
 
 \begin{solution}
-首先根据符号化方法的理论，设节点的生成函数为 $A(x) = \sum_k a_kx^k$，可以立即列出生成函数方程 $T(x) = A(x) \exp \left(\frac{T(x^k)}{k}\right)$。
+首先根据符号化方法\footnote{Symbolic Method，见 \cite[A.I]{acomb}}的理论，设节点的生成函数为 $A(x) = \sum_k a_kx^k$，可以立即列出生成函数方程 $T(x) = A(x) \exp \left(\frac{T(x^k)}{k}\right)$。
 
 首先，注意到当已经确认 $T(x)$ 的 $\le n-1$ 次项，就唯一确定了这一表达式的 $n$ 次项，进而得到 $T(x)$ 的 $n$ 次项。我们将等式右侧拆解为表达式树的结构，形如图 \ref{figexpr}，我们只需将表达式中的各运算问题逐个击破。
 
@@ -415,11 +415,18 @@ $$Q(x,G,G',\dots,G^{(m)})=0$$
 \caption{表达式树}\label{figexpr}
 \end{figure}
 
-其中，mul 无非半在线卷积，而 $\sum_{k\ge1}\frac{\cdot(x^k)}{k}$ 实非瓶颈，只需再考察如何在线地计算 $\exp$。我们考虑 $\me^x$ 满足微分方程 $(\me^x)'=\me^x$，因此设 $G=\me^F$，可得微分方程 $G'=GF'$。只需知晓 $G$ 的 $\le n-1$ 次项以及 $F$ 的 $\le n$ 次项即可得到 $G$ 的 $n$ 次项。
+其中，mul 无非半在线卷积，而 $\sum_{k\ge1}\frac{\cdot(x^k)}{k}$ 实非瓶颈，只需再考察如何在线地计算 $\exp$。我们考虑 $\me^x$ 满足微分方程 $(\me^x)'=\me^x$，因此设 $G=\me^F$，可得微分方程 $G'=GF'$。只需知晓 $G$ 的 $\le n-1$ 次项以及 $F$ 的 $\le n$ 次项即可经由在线卷积得到 $G$ 的 $n$ 次项。
+
+由此，我们得到了一个完整的计算流程，如图 \ref{figdiag} 所示，通过中间过程维护两个辅助的生成函数 $P_1(x),P_2(x)$，我们将问题转化为了一组同步执行的在线卷积问题。
 
 \begin{figure}[htbp]
 \centering
-\begin{tikzpicture}[node distance=5mm and 5mm,
+\tikzset{global scale/.style={
+    scale=#1,
+    every node/.append style={scale=#1}
+  }
+}
+\begin{tikzpicture}[global scale=0.8,node distance=5mm and 5mm,
 src/.style={
 rectangle,
 minimum size=6mm,
@@ -472,6 +479,7 @@ vh path/.style={to path={|- (\tikztotarget)}}
 \caption{计算过程}\label{figdiag}
 \end{figure}
 
+事实上我们得到的亦是一个在线算法，其支持在给出 $a_k$ 后得到重量和为 $k$ 的方案数。
 \end{solution}
 
 \subsubsection{Lagrange 反演}
@@ -500,7 +508,6 @@ $$
 \end{lemma}
 
 \begin{proof} 考虑当 $k\neq -1$ 时，我们有 $F'(x)F^k(x)=(\frac 1{k+1} F(x)^{k+1})'$，而 $(x^0)'=0x^{-1}$，故 $-1$ 次项系数此时必然为 $0$。当 $k=-1$ 时设 $F(x) = a_1 x + a_2 x^2 + \cdots$，有
-
 \begin{align*}
 \frac{F'(x)}{F(x)} &= \frac{a_1 + 2a_2x + \cdots}{a_1 x + a_2 x^2 + \cdots}\\
 &= x^{-1} \frac{1 + 2\frac{a_2}{a_1} x + \cdots}{1 + \frac{a_2}{a_1} x + \cdots}
@@ -1146,11 +1153,57 @@ $$
 
 由于集合幂级数实为一种特殊的多元幂级数，因而我们可以照搬多元幂级数中所定义的树形复合方程以及多元 Lagrange 反演。由此我们可以在 $\tilde O(2^n)$ 时间内计算集合幂的树形复合方程中的一项。下面我们记 $f^S = \prod_{i\in S} f_i$。
 
+\begin{theorem}
+  对于由 $\mathbf G$ 定义的树形复合方程 $\mathbf F$，可在 $O(n\alpha^n \R(n))$ 时间内计算出 $\mathbf F$ 的所有系数，其中 $\alpha = \frac{3+\sqrt 5}2 \approx 2.618$。
+\end{theorem}
+
+我们考虑设计出一个 $O(n\alpha^n\Mul(n))$ 复杂度的验证解的算法，然后只需将其改写为在线算法。其中问题的核心无非是一类特殊的复合：计算 $P(F_1,\dots,F_n)$，其中 $F_i$ 的有值项均包含 $x_i$。
+
+我们考虑进行逐点牛顿迭代法，考虑 $\frac{\partial}{\partial x_n} P(F_1,\dots,F_n) = \sum_{k=1}^n (\frac{\partial}{\partial x_k} P)(F_1,\dots,F_n) \cdot \frac{\partial}{\partial x_n} F_k$。由此，对于阶为 $n-k$ 规模的子问题，总共有 $\sum_{i\le k} \binom n i$ 个。而再仔细分析问题则发现，对于子问题 $(\prod_{i\in S} \frac{\partial}{\partial x_i})P$ 的复合问题，其中 $i\le n-k$ 的部分无需计算包含 $x_i$ 的系数，因为 $F_i$ 的乘法会将这一部分溢出。经过这一部分削减后，我们总共卷积的规模之和可用如下和式表示：
+$$
+T(n)=\sum_{\substack{i,j,k\\ i+j\le k}} \binom{n-k}i \binom{k}j 2^{n-k-i}
+$$
+
+接下来证明 $T(n) = \Theta(\alpha^n)$。
+\begin{proof}
+我们考虑对和式关于 $n$ 的数列构建生成函数。
+\begin{align*}
+T(n)&=\sum_{\substack{i,j,k\\ i+j\le k}} ([x^i](2+x)^{n-k})([x^j](1+x)^k)\\
+&=\sum_{i+j+t=k} ([x^i](2+x)^{n-k})([x^j](1+x)^k)\left([x^t]\frac 1{1-x}\right)\\
+&=\sum_{k\le n} [x^k] \frac{(2+x)^{n-k}(1+x)^k}{1-x}\\
+&= [x^0]\sum_{k\le n} \frac{(2+x)^{n-k}(1+x)^k}{x^k(1-x)}
+\end{align*}
+
+注意到当 $k<0$ 的时候，所提取的系数天然为 $0$，因此我们不妨直接改写为向负无穷求和。
+\begin{align*}
+T(n) &= [x^0]\sum_{k\ge 0} \frac{(2+x)^{k}(1+x)^{n-k}}{x^{n-k} (1-x)}\\
+&= [x^n]\frac{(1+x)^n}{1-x} \sum_{k\ge 0} (2+x)^k(1+x)^{-k}x^k\\
+&= [x^n]\frac{(1+x)^n}{1-x} \frac 1{1-\frac{x(2+x)}{1+x}}\\
+&= [x^n](1+x)^n \frac {1+x}{(1-x)(1-x-x^2)}
+\end{align*}
+
+设 $G(x)=\frac {1+x}{(1-x)(1-x-x^2)}$，这一和式无非形如
+\begin{align*}
+&= \sum_k \binom nk [x^k]G(x)\\
+&= \sum_k \left([z^n] \frac{z^k}{(1-z)^{k+1}} \right) [x^k]G(x)\\
+&= [z^n] \frac 1{1-z} G\left( \frac z{1-z} \right)\\
+&= [z^n] \frac {1-z}{(1-2z)(1-3z+z^2)}
+\end{align*}
+
+由此可知，$\sum_{n\ge 0} T(n)z^n = \frac {1-z}{(1-2z)(1-3z+z^2)}$，因式分解可得 $(1-2z)(1-3z+z^2)=(1-\alpha z)(1-\beta z)(1-\gamma z)$，其中
+$$
+\alpha,\beta,\gamma = \frac{3\pm \sqrt 5}2, 2
+$$
+所写出的生成函数已为即约分式，可知存在\emph{非零}常数 $a,b,c$ 使得 $T(n) = a\alpha^n + b\beta^n + c\gamma^n$，因此 $T(n)$ 的增长被最大根控制，也即 $T(n) \sim a \alpha^n$。因此 $T(n) = \Theta(\alpha^n)$。
+\end{proof}
+
+如果无需求出所有系数，藉由多元 Lagrange 反演，我们可以给出 $\tilde O(2^n)$ 的求算方法。
+
 \begin{theorem} \label{algocomp}
 对于由 $\mathbf G$ 定义的树形复合方程 $\mathbf F$，经过 $\Theta(n^42^n)$ 的预处理，给定 $H \in \A\{x_1,\dots,x_n\}$ 询问 $[x^S] H(\mathbf F)$ 可在 $\Theta(|S|^22^{|S|})$ 时间内完成。
 \end{theorem}
 
-一般情况而言的算法还是较为臃肿，但对于一些特殊情况，我们能够做到更好的复杂度。
+由此可见，一般情况而言的算法还是较为臃肿，但对于一些特殊情况，我们能够做到更好的复杂度。
 
 \subsubsection{对称复合方程}
 
@@ -1173,7 +1226,7 @@ $$
 
 $\mathscr C$ 的构成相当于对所有圆方树进行统计。其中对于 $[x^S]\mathscr C$ 而言，$S$ 描述了圆方树的圆点点集，而 $g_i$ 是对于 $i$ 号点的度数赋予的权重，而 $[x^S]\mathscr B$ 则描述了一个方点的邻接点集为 $S$ 时赋予的权重。
 
-如图 \ref{figsym} 所示是提取系数 $[x^{\{1,2,3,4,5,6\}}]\mathscr C$ 中的一项，其贡献为 $([x^{\{1,2,3\}}]\mathscr B)\cdot([x^{\{2,4\}}]\mathscr B)\cdot([x^{\{2,5,6\}}]\mathscr B)\cdot([\frac{x^3}{3!}]g_3)\cdot \prod_{i\in \{1,3,4,5,6\}}([\frac{x^1}{1!}]g_i)$。
+如图 \ref{figsym} 所示是提取系数 $[x^{\{1,2,3,4,5,6\}}]\mathscr C$ 中的一项，其贡献为 $([x^{\{1,2,3\}}]\mathscr B)\cdot([x^{\{2,4\}}]\mathscr B)\cdot([x^{\{2,5,6\}}]\mathscr B)\cdot([\frac{x^3}{3!}]g_2)\cdot \prod_{i\in \{1,3,4,5,6\}}([\frac{x^1}{1!}]g_i)$。
 
 \begin{figure}[htbp]
 \centering
@@ -1321,19 +1374,20 @@ $$
 
 因此我们首先可以通过一次二项卷积完成二项式反演，之后的第二次卷积是一个起点不太相同的二项卷积，但由于其中出现的组合数上标最大为 $n+m$，因此素因子幂次有 $p^k\le n+m$，可知进行类似转化后的值域被控制在 $n\cdot (n+m)M^2\le nM^3$ 内，四模数 NTT 的转化仍是可用的。
 
-% 事实上我们可以只进行一次卷积。考虑计算点值 $f(k)$ 经过两次变换对 $f(m)$ 的贡献，其为
-% \begin{align*}
-% &\quad\sum_{j\le n} \binom j k (-1)^{j-k} \binom m j\\
-% &=\sum_{j\le n} \binom m j [x^k](x-1)^j\\
-% &= [x^k] \sum_{j\le n} \binom m j (x-1)^j
-% \end{align*}
-% 设 $G(x)=\sum_{j\le n}\binom m j x^j$，不难验证 $G(x)$ 满足微分方程 $mG(x)=(1+x)G'(x) + m\binom {m-1}n x^n$，因而贡献 $F(x)=G(x-1)$，有
-% \begin{align*}
-% mF(x)&=xF'(x)+m\binom {m-1}n(x-1)^n\\
-% [x^k] mF(x)-xF'(x)&=[x^k]m\binom {m-1}n(x-1)^n\\
-% (m-k) [x^k] F(x)&= (-1)^{n-k} m \binom {m-1}n \binom n k\\
-% [x^k] F(x)&= (-1)^{n-k} \frac{m}{m-k} \binom {m-1}{m-n-1} \binom n k
-% \end{align*}
+事实上我们可以只进行一次卷积。考虑计算点值 $f(k)$ 经过两次变换对 $f(m)$ 的贡献，其为
+\begin{align*}
+&\quad\sum_{j\le n} \binom j k (-1)^{j-k} \binom m j\\
+&=\sum_{j\le n} \binom m j [x^k](x-1)^j\\
+&= [x^k] \sum_{j\le n} \binom m j (x-1)^j
+\end{align*}
+
+设 $G(x)=\sum_{j\le n}\binom m j x^j$，不难验证 $G(x)$ 满足微分方程 $mG(x)=(1+x)G'(x) + m\binom {m-1}n x^n$，因而贡献 $F(x)=G(x-1)$，有
+\begin{align*}
+mF(x)&=xF'(x)+m\binom {m-1}n(x-1)^n\\
+[x^k] mF(x)-xF'(x)&=[x^k]m\binom {m-1}n(x-1)^n\\
+(m-k) [x^k] F(x)&= (-1)^{n-k} m \binom {m-1}n \binom n k\\
+[x^k] F(x)&= (-1)^{n-k} \frac{m}{m-k} \binom {m-1}{m-n-1} \binom n k
+\end{align*}
 
 % \section{狄利克雷生成函数}
 
@@ -1388,9 +1442,10 @@ $$
 \bibitem{newton} 赵雨扬。($2018\sim 2020$)。关于优化形式幂级数计算的 Newton 法的常数。\url{https://negiizhao.blog.uoj.ac/blog/4671}
 \bibitem{relaxmul} Hoeven, Joris. (2007). New algorithms for relaxed multiplication. \DOI{10.1016/j.jsc.2007.04.004} 
 \bibitem{nimberpoly} 罗煜翔。(2020)。浅谈 Nimber 和多项式算法。IOI2020 中国国家集训队论文集。
+\bibitem{acomb} Philippe Flajolet \& Robert Sedgewick. (2007). Analytic Combinatorics.
 \bibitem{fastlinearrec} Bostan, A. \& Mori, Ryuhei. (2020). A Simple and Fast Algorithm for Computing the $N$-th Term of a Linearly Recurrent Sequence. \DOI{10.1137/1.9781611976496.14}
 \bibitem{zzq} 钟子谦。(2019)。两类递推数列的性质和应用。IOI2019 中国国家候选队论文集。
-\bibitem{palg} Bostan, Alin and Christol, Gilles and Dumas, Philippe. (2016). Fast Computation of the $N$-th Term of an Algebraic Series over a Finite Prime Field. In Proceedings of the ACM on International Symposium on Symbolic and Algebraic Computation (ISSAC '16). Association for Computing Machinery, New York, NY, USA, 119–126. \DOI{10.1145/2930889.2930904}
+\bibitem{palg} Bostan, Alin and Christol, Gilles and Dumas, Philippe. (2016). Fast Computation of the $N$-th Term of an Algebraic Series over a Finite Prime Field. \DOI{10.1145/2930889.2930904}
 \bibitem{combenum} Goulden, Ian P., and David M. Jackson. (2004). Combinatorial Enumeration.
 \bibitem{walk} 洪华敦。(2018)。《「WC2018」州区划分》解题报告。
 \bibitem{vfk} 吕凯风。(2015)。集合幂级数的性质与应用及其快速算法。IOI2015 中国国家候选队论文集。
