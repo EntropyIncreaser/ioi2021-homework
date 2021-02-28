@@ -1197,10 +1197,10 @@ $$
 所写出的生成函数已为即约分式，可知存在\emph{非零}常数 $a,b,c$ 使得 $T(n) = a\alpha^n + b\beta^n + c\gamma^n$，因此 $T(n)$ 的增长被最大根控制，也即 $T(n) \sim a \alpha^n$。因此 $T(n) = \Theta(\alpha^n)$。
 \end{proof}
 
-如果无需求出所有系数，藉由多元 Lagrange 反演，我们可以给出 $\tilde O(2^n)$ 的求算方法。
+如果无需求出所有系数，藉由多元 Lagrange 反演，我们可以给出 $\tilde O(2^n)$\footnote{$T(n) = \tilde O(f(n))$ 表示存在常数 $k$ 使得 $T(n) = O(f(n)\log ^k f(n))$} 的求算方法。
 
 \begin{theorem} \label{algocomp}
-对于由 $\mathbf G$ 定义的树形复合方程 $\mathbf F$，经过 $\Theta(n^42^n)$ 的预处理，给定 $H \in \A\{x_1,\dots,x_n\}$ 询问 $[x^S] H(\mathbf F)$ 可在 $\Theta(|S|^22^{|S|})$ 时间内完成。
+对于由 $\mathbf G$ 定义的树形复合方程 $\mathbf F$，经过 $\tilde O(2^n)$ 的预处理，给定 $H \in \A\{x_1,\dots,x_n\}$ 询问 $[x^S] H(\mathbf F)$ 可在 $\Theta(|S|^22^{|S|})$ 时间内完成。
 \end{theorem}
 
 由此可见，一般情况而言的算法还是较为臃肿，但对于一些特殊情况，我们能够做到更好的复杂度。
@@ -1386,8 +1386,11 @@ $$
 mF(x)&=xF'(x)+m\binom {m-1}n(x-1)^n\\
 [x^k] mF(x)-xF'(x)&=[x^k]m\binom {m-1}n(x-1)^n\\
 (m-k) [x^k] F(x)&= (-1)^{n-k} m \binom {m-1}n \binom n k\\
-[x^k] F(x)&= (-1)^{n-k} \frac{m}{m-k} \binom {m-1}{m-n-1} \binom n k
+[x^k] F(x)&= (-1)^{n-k} \frac{m}{m-k} \binom {m-1}{m-n-1} \binom n k\\
+&= (-1)^{n-k} \binom m k \binom {m-k-1}{m-n-1}
 \end{align*}
+
+值得一提的是，Lagrange 插值公式也可导出这一结果。这一方法可以仅进行一次卷积，但其过程中组合数含有的 $p$ 的质因子次数可能较大。在诸如整式递推快速求值算法中由于 $m=O(n)$，可得值域在 $O(n^3M^2)$ 范围内，比较适用。
 
 % \section{狄利克雷生成函数}
 
@@ -1415,7 +1418,7 @@ mF(x)&=xF'(x)+m\binom {m-1}n(x-1)^n\\
 
 \section{总结}
 
-本文中，我们简要勾勒出了生成函数计算时问题的主要分支、计算时的不同难度层次、以及解决对应的问题的部分纲领。然而吾生也有涯，而知也无涯，本文的理论还有无数的空缺之处以及开放性问题尚待解决。希望能有感兴趣的同学发挥愚公移山之精神，进一步完善生成函数计算的理论图景！
+本文中，我们简要勾勒出了生成函数计算时问题的主要分支、计算时的不同难度层次、以及解决对应的问题的部分纲领。然而吾生也有涯，而知也无涯，本文的理论还有无数的空缺之处以及开放性问题尚待解决。读者也不必拘泥于本文的一些见解，有道是当局者迷，旁观者清，或许跳出本文的见解，反而能在部分问题得到进一步的结果。总之，希望能有感兴趣的同学发挥愚公移山之精神，进一步完善生成函数计算的理论图景！
 
 \section*{致谢}
 
@@ -1445,7 +1448,7 @@ mF(x)&=xF'(x)+m\binom {m-1}n(x-1)^n\\
 \bibitem{acomb} Philippe Flajolet \& Robert Sedgewick. (2007). Analytic Combinatorics.
 \bibitem{fastlinearrec} Bostan, A. \& Mori, Ryuhei. (2020). A Simple and Fast Algorithm for Computing the $N$-th Term of a Linearly Recurrent Sequence. \DOI{10.1137/1.9781611976496.14}
 \bibitem{zzq} 钟子谦。(2019)。两类递推数列的性质和应用。IOI2019 中国国家候选队论文集。
-\bibitem{palg} Bostan, Alin and Christol, Gilles and Dumas, Philippe. (2016). Fast Computation of the $N$-th Term of an Algebraic Series over a Finite Prime Field. \DOI{10.1145/2930889.2930904}
+% \bibitem{palg} Bostan, Alin and Christol, Gilles and Dumas, Philippe. (2016). Fast Computation of the $N$-th Term of an Algebraic Series over a Finite Prime Field. \DOI{10.1145/2930889.2930904}
 \bibitem{combenum} Goulden, Ian P., and David M. Jackson. (2004). Combinatorial Enumeration.
 \bibitem{walk} 洪华敦。(2018)。《「WC2018」州区划分》解题报告。
 \bibitem{vfk} 吕凯风。(2015)。集合幂级数的性质与应用及其快速算法。IOI2015 中国国家候选队论文集。
