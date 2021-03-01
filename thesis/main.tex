@@ -67,7 +67,7 @@ $$ a_n = \sum_{j=1}^k a_{n-j} b_j $$
 
 现在较为普及的线性递推算法由 Fiduccia 于 1985 年提出，并不具有较好的常数。后文将介绍一种算法上更为简单，且具有较好常数的线性递推算法。
 
-\begin{theorem}给定数列 $a_n$ 的 $0\sim m-1$ 项和定义在其上的整式递推式 $P_0,\dots,P_m$，满足
+\begin{theorem}给定数列 $a_n$ 的 $0\sim m-1$ 项和定义在其上的整式递推式 $P_0,\dots,P_m$，其中 $P$ 皆为不超过 $d$ 次多项式，满足
 $$ a_n = -\frac1{P_0(n)}\sum_{j=1}^m a_{n-j}P_j(n) $$
 
 存在算法在 $\Theta \left(\sqrt{nd}\left(m^3+m^2\log(nd)\right)\right)$ 时间内计算 $a_n$。
@@ -398,7 +398,7 @@ $$Q(x,G,G',\dots,G^{(m)})=0$$
 \end{problem}
 
 \begin{solution}
-首先根据符号化方法\footnote{Symbolic Method，见 \cite[A.I]{acomb}}的理论，设节点的生成函数为 $A(x) = \sum_k a_kx^k$，可以立即列出生成函数方程 $T(x) = A(x) \exp \left(\frac{T(x^k)}{k}\right)$。
+首先根据符号化方法\footnote{Symbolic Method，见 \cite[A.I]{acomb}}的理论，设节点的生成函数为 $A(x) = \sum_k a_kx^k$，可以立即列出生成函数方程 $T(x) = A(x) \exp \left(\sum_k \frac{T(x^k)}{k}\right)$。
 
 首先，注意到当已经确认 $T(x)$ 的 $\le n-1$ 次项，就唯一确定了这一表达式的 $n$ 次项，进而得到 $T(x)$ 的 $n$ 次项。我们将等式右侧拆解为表达式树的结构，形如图 \ref{figexpr}，我们只需将表达式中的各运算问题逐个击破。
 
