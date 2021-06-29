@@ -257,6 +257,63 @@ $$
 
 \newpage
 
+\section{Game On a Circle II}
+
+\paragraph{简要题意} 给定长为 $n$ 的排列 $a$ 和概率 $p$。一个指针从 $1$ 开始顺时针走，每次有 $p$ 的概率将当前数删掉加入到序列 $b$ 的末尾。过程直到整个序列被清空，得到排列 $b$。问 $b$ 的\emph{康托展开值}的期望。
+
+同余 $998244353$，保证 $n\le 5\times 10^5$，$\operatorname{ord} (1-p) > n$。
+
+\paragraph{解法}
+
+首先注意到康托展开值是拆成各位之和的，而第 $i$ 位的贡献就是 $| b_i>b_j \land i < j |$ 乘以 $(n-i)!$。
+
+那么一个朴素的想法就是先枚举每个 $a_i$，看看其在序列 $b$ 中出现在位置 $j$ 的概率乘以此时 $| b_i>b_j \land i < j |$ 的期望。根据期望的线性性，我们拆解为对每个 $a_i>a_k$，统计「$a_i$ 在第 $j$ 轮被删去，且此时 $a_k$ 仍存活」的概率。
+
+这里有一个重要的转化，就是将问题转换为一个无穷和进行计算，我们认为一个数被“删掉”是做了至少一次标记，那么设 $q=1-p$，我们可以尝试先写出在第 $k$ 轮 $a_i$ 被删除，此时其对答案的贡献，可以预见这个式子是一个关于 $q^k$ 的多项式，我们求和会得到 $\sum_{k\ge 0} q^{jk} = \frac 1{1-q^j}$，而这种东西的处理是棘手的，所以我们可能务必需要得到 $q^{jk}$ 项系数。具体来讲，对于 $a_i$，如果我们考虑其左边的一个数晚于它被删去，那么在第 $k(\ge 0)$ 轮，可以枚举剩余的数被删去的情况：
+
+$$
+\sum_{l=0}^{i-2} \sum_{r=0}^{n-i} \binom {i-2}l \binom{n-i}r (n-l-r-1)! \cdot (1-q^{k+1})^l (1-q^k)^r \cdot q^{(k+1)(i-1-l)} q^{k(n-i-r)} \cdot pq^k
+$$
+
+设 $t=q^k$，有
+
+\begin{align*}
+& = \sum_{l=0}^{i-2} \sum_{r=0}^{n-i} \binom {i-2}l \binom{n-i}r (n-l-r-1)! \cdot (1-qt)^l (1-t)^r \cdot {(qt)}^{i-1-l} t^{n-i-r} \cdot pt\\
+& = p\cdot \sum_{l=0}^{i-2} \sum_{r=0}^{n-i} \binom {i-2}l \binom{n-i}r (n-l-r-1)! \cdot (1-qt)^l (1-t)^r \cdot q^{i-1-l} t^{n-l-r}
+\end{align*}
+
+我们将 $(n-l-r-1)!$ 代换成 $u^{n-l-r-1}$，那么这个式子可以直接根据二项式定理合并。
+
+\begin{align*}
+& = p\cdot \sum_{l=0}^{i-2} \sum_{r=0}^{n-i} \binom {i-2}l \binom{n-i}r u^{n-l-r-1} \cdot (1-qt)^l (1-t)^r \cdot q^{i-1-l} t^{n-l-r}\\
+& = p u^{n-1} q^{i-1} t^n\cdot \sum_{l=0}^{i-2} \sum_{r=0}^{n-i} \binom {i-2}l \binom{n-i}r u^{-l-r} \cdot (1-qt)^l (1-t)^r \cdot q^{-l} t^{-l-r}\\
+& = p u^{n-1} q^{i-1} t^n \left( 1 + \frac{1-qt}{uqt} \right)^{i-2} \left( 1 + \frac{1-t}{ut} \right)^{n-i}\\
+& = pq u t^2 \left( uqt + 1-qt \right)^{i-2} \left( ut + 1-t \right)^{n-i}\\
+& = pq u t^2 (1+qt(u-1))^{i-2} (1+t(u-1))^{n-i}
+\end{align*}
+
+我们令 $v^{\bullet}=u(u-1)^{\bullet}$，也就有
+
+$$
+= pq t^2 (1+qtv)^{i-2} (1+tv)^{n-i}
+$$
+
+我们又注意到可以令 $t^2(tv)^\bullet = x^\bullet$，也就有
+
+$$
+= pq (1+qx)^{i-2}(1+x)^{n-i}
+$$
+
+我们要对所有的 $i$ 都求出，因此转置问题就是计算 $\sum_i a_i pq (1+qx)^{i-2}(1+x)^{n-i}$，这是显然可以 $\Theta(n\log n)$ 的，不同的变形方法都可以得到结果。
+
+对于另一半，计算可得就是 $p (1+qx)^{i-2}(1+x)^{n-i}$，少一个 $q$。
+
+数点用树状数组就可以做了，因此整个问题复杂度为 $\Theta(n\log n)$。
+
+\paragraph{点评} 原本的思路是先从一个简化的问题出发，然后得到了一种组合转化方法，而我们借助的哑演算法则是让代数推导更加自由，也能够直接从代数推导上得到同样的性质。
+
+\newpage
+
 \section{monster}
 
 \paragraph{简要题意} 有正整数 $k$ 以及 $a_i, p_i$，每回合按 $1\sim k$ 的顺序检查 $1\sim k$，每次 $a_i$ 有 $p_i$ 的概率减少 $1$，求 $a_1$ 最先减到 $0$ 的概率。
