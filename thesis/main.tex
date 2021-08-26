@@ -994,13 +994,16 @@ $$
       \STATE $\mathbf F[l] \leftarrow (f[l] \mathbf A)_b$
     \ELSE
       \FOR {$i = l \dots l + 2^{t-1}-1$}
-        \STATE $\mathbf F[i + 2^{t-1}] \leftarrow \mathbf F[i + 2^{t-1}] + \mathbf F[i]$
+        \STATE $\mathbf F[i + 2^{t-1}] \leftarrow \mathbf F[i + 2^{t-1}] - \mathbf F[i]$
       \ENDFOR
       \STATE DivideConquer($l, t-1$)
       \FOR {$i = l \dots l + 2^{t-1}-1$}
         \STATE $\mathbf F[i + 2^{t-1}] \leftarrow \mathbf F[i + 2^{t-1}] + \mathbf F[i] \cdot \mathbf G[i + 2^{t-1}]$
       \ENDFOR
       \STATE DivideConquer($l+2^{t-1}, t-1$)
+      \FOR {$i = l \dots l + 2^{t-1}-1$}
+        \STATE $\mathbf F[i + 2^{t-1}] \leftarrow \mathbf F[i + 2^{t-1}] + \mathbf F[i]$
+      \ENDFOR
     \ENDIF
     \end{ALC@g}
     \STATE \textbf{end function}
